@@ -2,6 +2,7 @@
 
 import datetime
 import glob as glob
+import os
 import time
 
 import imageio as iio
@@ -84,6 +85,8 @@ def gif_maker(
     writer.close()
 
     print(f"{vid_name} is created\n")
+    # Copy the file to a specific location
+    os.system(f"cp {vid_name} /home/vetinari/Dropbox/rt_sw/")
 
 
 def make_gifs(
