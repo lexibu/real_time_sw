@@ -1,5 +1,9 @@
 import importlib
 import time
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 import sw_rt_ts_dwld_upld_dscovr_07days_automated as sw_rt_ts_dwld
 import sw_rt_ts_mp4_dscovr as sw_rt_ts_mp4
