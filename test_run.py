@@ -1,6 +1,0 @@
-import importlib
-import sw_rt_ts_dwld_upld_dscovr_07days_automated as sw_rt_ts_dwld
-
-importlib.reload(sw_rt_ts_dwld)
-number_of_days = 35
-sw_rt_ts_dwld.plot_figures_dsco_30days(number_of_days)
