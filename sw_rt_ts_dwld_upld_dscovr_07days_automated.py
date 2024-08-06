@@ -107,7 +107,7 @@ def plot_figures_dsco_07days(number_of_days=30):
     except Exception:
         print("No files to unzip\n")
 
-    os.chdir("/home/vetinari/Desktop/temp/codes")
+    os.chdir("/home/cephadrius/Desktop/git/real_time_sw/")
 
     plas_file_list = np.sort(glob.glob(f"{data_dir}/oe_f1m_*.nc"))[-number_of_days:]
     mag_file_list = np.sort(glob.glob(f"{data_dir}/oe_m1m_*.nc"))[-number_of_days:]

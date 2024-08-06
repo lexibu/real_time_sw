@@ -1,0 +1,8 @@
+# Ignore the figures directory
+figures/
+
+# Ignore the data directory
+dscovr_data/
+
+# Ignore files in the __pycache__ directory
+__pycache__/

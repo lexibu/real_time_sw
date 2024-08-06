@@ -11,7 +11,7 @@ importlib.reload(sw_rt_ts_mp4)
 # Run the rest of the code every 60 minutes
 while True:
     time_code_start = time.time()
-    number_of_days = 36
+    number_of_days = 365
     sw_rt_ts_dwld.plot_figures_dsco_07days(number_of_days=number_of_days)
     sw_rt_ts_mp4.make_gifs(
         number_of_files=number_of_days,
