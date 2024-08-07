@@ -2,6 +2,7 @@
 import datetime
 import sched
 import time
+import geopack.geopack as gp
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,14 +11,134 @@ from matplotlib.dates import DateFormatter
 
 s = sched.scheduler(time.time, time.sleep)
 
+# Set the dark mode for the plots
+plt.style.use("dark_background")
 
-def plot_figures_dsco_1day():
+
+def mp_r_shue(df):
+    theta = np.arctan2(np.sqrt(df["z_gsm"] ** 2 + df["y_gsm"] ** 2), df["x_gsm"])
+    # Check if all theta values are nan, if they are then set them to 0
+    if np.isnan(theta).all():
+        theta = np.zeros(len(theta))
+    ro = (10.22 + 1.29 * np.tanh(0.184 * (df["bz_gsm"] + 8.14))) * (df["p_dyn"]) ** (
+        -1 / 6.6
+    )
+    alpha = (0.58 - 0.007 * df["bz_gsm"]) * (1 + 0.024 * np.log(df["p_dyn"]))
+    r = ro * (2 / (1 + np.cos(theta))) ** alpha
+    df["r_shue"] = r
+    return df
+
+
+def mp_r_yang(df):
+
+    for _, row in df.iterrows():
+        bz = row["bz_gsm"]
+        pdyn = row["p_dyn"]
+
+        bzp = bz
+        lim = -8.1 - 12.0 * np.log(pdyn + 1)
+        if bzp < lim:
+            bzp = lim
+
+        a1 = 11.646
+        a2 = 0.216
+        a3 = 0.122
+        a4 = 6.215
+        a5 = 0.578
+        a6 = -0.009
+        a7 = 0.012
+        a7 = a7 * np.exp(-1 * pdyn / 30)
+        alpha = (a5 + a6 * bzp) * (1 + a7 * pdyn)
+
+        if bzp >= 0:
+            ro = a1 * pdyn ** (-1.0 / a4)
+        elif -8 <= bzp < 0:
+            ro = (a1 + a2 * bzp) * pdyn ** (-1.0 / a4)
+        else:
+            ro = (a1 + a2 * bzp) * pdyn ** (-1.0 / a4)
+
+        theta = 2 * np.pi * 0 / 360
+        r = ro * (2 / (1 + np.cos(theta))) ** alpha
+
+        df.loc[_, "r_yang"] = r
+    return df
+
+
+def mp_r_lin(df):
+    a0 = 12.544
+    a1 = -0.194
+    a2 = 0.305
+    a3 = 0.0573
+    a4 = 2.178
+    a5 = 0.0571
+    a6 = -0.999
+    a7 = 16.473
+    a8 = 0.00152
+    a9 = 0.381
+    a10 = 0.0431
+    a11 = -0.00763
+    a12 = -0.210
+    a13 = 0.0405
+    a14 = -4.430
+    a15 = -0.636
+    a16 = -2.600
+    a17 = 0.832
+    a18 = -5.328
+    a19 = 1.103
+    a20 = -0.907
+    a21 = 1.450
+    sigma = 1.033
+
+    pmag = 0  # magnetic pressure, assumed to be zero
+    theta = 0
+    phi = 0
+
+    beta0 = a6 + a7 * (np.exp(a8 * df["bz_gsm"]) - 1) / (np.exp(a9 * df["bz_gsm"]) + 1)
+    beta1 = a10
+    beta2 = a11 + a12 * df["dipole_tilt"]
+    beta3 = a13
+
+    dn = a16 + a17 * df["dipole_tilt"] + a18 * df["dipole_tilt"] ** 2
+    ds = a16 - a17 * df["dipole_tilt"] + a18 * df["dipole_tilt"] ** 2
+
+    thetan = a19 + a20 * df["dipole_tilt"]
+    thetas = a19 - a20 * df["dipole_tilt"]
+
+    en = a21
+    es = a21
+
+    cn = a14 * df["p_dyn"] ** a15
+    cs = cn
+
+    psi_s = np.arccos(
+        np.cos(theta) * np.cos(thetas)
+        + np.sin(theta) * np.sin(thetas) * np.cos(phi - 3 * np.pi / 2)
+    )
+    psi_n = np.arccos(
+        np.cos(theta) * np.cos(thetan)
+        + np.sin(theta) * np.sin(thetan) * np.cos(phi - np.pi / 2)
+    )
+
+    ex = beta0 + beta1 * np.cos(phi) + beta2 * np.sin(phi) + beta3 * (np.sin(phi)) ** 2
+    f = (np.cos(theta / 2) + a5 * np.sin(2 * theta) * (1 - np.exp(-theta))) ** ex
+    r0 = (
+        a0
+        * (df["p_dyn"] + pmag) ** a1
+        * (1 + a2 * (np.exp(a3 * df["bz_gsm"]) - 1) / (np.exp(a4 * df["bz_gsm"]) + 1))
+    )
+    r = r0 * f + cn * np.exp(dn * psi_n**en) + cs * np.exp(ds * psi_s**es)
+
+    df["r_lin"] = r
+    return df
+
+
+def plot_figures_dsco_1day(sc=None):
     # for foo in range(1):
     """
     Download and upload data the ACE database hosted at https://services.swpc.noaa.gov/text
     """
     # Set up the time to run the job
-    # s.enter(60, 1, plot_figures_dsco_1day, (sc,))
+    s.enter(60, 1, plot_figures_dsco_1day, (sc,))
 
     # start = time.time()
     print(
@@ -117,6 +238,23 @@ def plot_figures_dsco_1day():
     # Compute the dynamic pressure of solar wind
     df_dsco["p_dyn"] = 1.6726e-6 * 1.15 * df_dsco.np * df_dsco.vp**2
 
+    # Get the unix time for all the time tags
+    df_dsco["unix_time"] = df_dsco.index.astype(int) // 10**9
+
+    # Compute the dipole tilt angle
+    for i in range(len(df_dsco)):
+        tilt_angle_gp = gp.recalc(df_dsco.unix_time[i])
+        df_dsco.loc[df_dsco.index[i], "dipole_tilt"] = np.degrees(tilt_angle_gp)
+
+    # Compute the magnetopause radius using the Shue et al., 1998 model
+    df_dsco = mp_r_shue(df_dsco)
+
+    # Compute the magnetopause radius using the Yang et al., 2011 model
+    df_dsco = mp_r_yang(df_dsco)
+
+    # Compute the magnetopause radius using the Lin et al., 2008 model
+    df_dsco = mp_r_lin(df_dsco)
+
     # Make a copy of the dataframe at original cadence
     df_dsco_hc = df_dsco.copy()
 
@@ -136,7 +274,7 @@ def plot_figures_dsco_1day():
     # cticklength = 5
     # mcticklength = 4
     # labelrotation = 0
-    # xlabelsize = 20
+    xlabelsize = 20
     ylabelsize = 20
     alpha = 0.3
     bar_color = "k"
@@ -191,17 +329,37 @@ def plot_figures_dsco_1day():
 
     axs1.set_xlim(df_dsco.index.min(), df_dsco.index.max())
     axs1.set_ylabel(r"B [nT]", fontsize=20)
-    lgnd1 = axs1.legend(fontsize=labelsize, loc="best", ncol=ncols)
-    lgnd1.legend_handles[0]._sizes = [labelsize]
-    fig.suptitle(f"1 Day DSCOVR Real Time Data", fontsize=22)
+    # lgnd1 = axs1.legend(fontsize=labelsize, loc="best", ncol=ncols)
+    # lgnd1.legend_handles[0]._sizes = [labelsize]
+    # Add a text in the plot right outside the plot along the right edge in the middle
+    y_labels = [r"$|\vec{B}|$", r"$B_x$", r"$B_y$", r"$B_z$"]
+    y_label_colors = ["k", "r", "b", "g"]
+    for i, txt in enumerate(y_labels):
+        axs1.text(
+            1.01,
+            -0.05 + 0.20 * (i + 1),
+            txt,
+            ha="left",
+            va="center",
+            transform=axs1.transAxes,
+            fontsize=20,
+            color=y_label_colors[i],
+        )
+    fig.suptitle("1 Day DSCOVR Real Time Data", fontsize=22)
 
     # Density plot
     axs2 = fig.add_subplot(gs[1, 0], sharex=axs1)
     axs2.plot(
-        df_dsco.index.values, df_dsco.np.values, "r-", lw=lw, ms=ms, label=r"$n_p$"
+        df_dsco.index.values,
+        df_dsco.np.values,
+        color="bisque",
+        ls="-",
+        lw=lw,
+        ms=ms,
+        label=r"$n_p$",
     )
     axs2.plot(
-        df_dsco_hc.index.values, df_dsco_hc.np.values, color="r", lw=1, alpha=alpha
+        df_dsco_hc.index.values, df_dsco_hc.np.values, color="bisque", lw=1, alpha=alpha
     )
     axs2.axvspan(t1, t2, alpha=alpha, color=bar_color)
 
@@ -210,17 +368,17 @@ def plot_figures_dsco_1day():
     else:
         axs2.set_ylim(0.9 * np.nanmin(df_dsco.np), 1.1 * np.nanmax(df_dsco.np))
 
-    lgnd2 = axs2.legend(fontsize=labelsize, loc="best", ncol=ncols)
-    lgnd2.legend_handles[0]._sizes = [labelsize]
-    axs2.set_ylabel(r"$n_p [1/\rm{cm^{3}}]$", fontsize=ylabelsize)
+    # lgnd2 = axs2.legend(fontsize=labelsize, loc="best", ncol=ncols)
+    # lgnd2.legend_handles[0]._sizes = [labelsize]
+    axs2.set_ylabel(r"$n_p [1/\rm{cm^{3}}]$", fontsize=ylabelsize, color="r")
 
     # Speed plot
     axs3 = fig.add_subplot(gs[2, 0], sharex=axs1)
     axs3.plot(
-        df_dsco.index.values, df_dsco.vp.values, "b-", lw=lw, ms=ms, label=r"$V_p$"
+        df_dsco.index.values, df_dsco.vp.values, "c-", lw=lw, ms=ms, label=r"$V_p$"
     )
     axs3.plot(
-        df_dsco_hc.index.values, df_dsco_hc.vp.values, color="b", lw=1, alpha=alpha
+        df_dsco_hc.index.values, df_dsco_hc.vp.values, color="c", lw=1, alpha=alpha
     )
     axs3.axvspan(t1, t2, alpha=alpha, color=bar_color)
 
@@ -229,20 +387,17 @@ def plot_figures_dsco_1day():
     else:
         axs3.set_ylim(0.9 * np.nanmin(df_dsco.vp), 1.1 * np.nanmax(df_dsco.vp))
 
-    lgnd3 = axs3.legend(fontsize=labelsize, loc="best", ncol=ncols)
-    lgnd3.legend_handles[0]._sizes = [labelsize]
-    axs3.set_ylabel(r"$V_p [\rm{km/sec}]$", fontsize=ylabelsize)
+    # lgnd3 = axs3.legend(fontsize=labelsize, loc="best", ncol=ncols)
+    # lgnd3.legend_handles[0]._sizes = [labelsize]
+    axs3.set_ylabel(r"$V_p [\rm{km/sec}]$", fontsize=ylabelsize, color="c")
 
     # Flux plot
     axs4 = fig.add_subplot(gs[3, 0], sharex=axs1)
     axs4.plot(
-        df_dsco.index.values, df_dsco.flux.values, "g-", lw=lw, ms=ms, label=r"flux"
+        df_dsco.index.values, df_dsco.flux.values, "w-", lw=lw, ms=ms, label=r"flux"
     )
     axs4.plot(
-        df_dsco_hc.index.values, df_dsco_hc.flux.values, color="g", lw=1, alpha=alpha
-    )
-    im4a = axs4.axhline(
-        y=2.9, xmin=0, xmax=1, color="r", ls="-", lw=lw, ms=ms, label=r"cut-off"
+        df_dsco_hc.index.values, df_dsco_hc.flux.values, color="w", lw=1, alpha=alpha
     )
     axs4.axvspan(t1, t2, alpha=alpha, color=bar_color)
 
@@ -254,83 +409,100 @@ def plot_figures_dsco_1day():
             np.nanmax([1.1 * np.nanmax(df_dsco.flux), 3.3]),
         )
 
-    lgnd4 = axs4.legend(fontsize=labelsize, loc="best", ncol=ncols)
-    lgnd4.legend_handles[0]._sizes = [labelsize]
-    axs4.set_ylabel(r"~~~~Flux\\ $10^8 [\rm{1/(sec\, cm^2)}]$", fontsize=ylabelsize)
+    # lgnd4 = axs4.legend(fontsize=labelsize, loc="best", ncol=ncols)
+    # lgnd4.legend_handles[0]._sizes = [labelsize]
+    axs4.set_ylabel(
+        r"~~~~Flux\\ $10^8 [\rm{1/(sec\, cm^2)}]$", fontsize=ylabelsize, color="w"
+    )
 
     # Cusp latitude plot
-    """
+
     axs5 = fig.add_subplot(gs[4:, 0], sharex=axs1)
 
-    min_lambda = np.nanmin(
+    min_rmp = np.nanmin(
         [
-            np.nanmin(df_dsco.lambda_phi),
-            np.nanmin(df_dsco.lambda_wav),
-            np.nanmin(df_dsco.lambda_vas),
-            np.nanmin(df_dsco.lambda_ekl),
+            np.nanmin(df_dsco.r_shue),
+            np.nanmin(df_dsco.r_yang),
+            np.nanmin(df_dsco.r_lin),
         ]
     )
-    max_lambda = np.nanmax(
+    max_rmp = np.nanmax(
         [
-            np.nanmax(df_dsco.lambda_phi),
-            np.nanmax(df_dsco.lambda_wav),
-            np.nanmax(df_dsco.lambda_vas),
-            np.nanmax(df_dsco.lambda_ekl),
+            np.nanmax(df_dsco.r_shue),
+            np.nanmax(df_dsco.r_yang),
+            np.nanmax(df_dsco.r_lin),
         ]
     )
 
     axs5.plot(
+        df_dsco_hc.index.values, df_dsco_hc.r_shue.values, color="r", lw=1, alpha=alpha
+    )
+    axs5.plot(
         df_dsco.index.values,
-        df_dsco.lambda_phi.values,
+        df_dsco.r_shue.values,
         "r-",
         lw=lw,
         ms=ms,
-        label=r"$d\phi/dt$",
+        label=r"Shue",
+    )
+
+    axs5.plot(
+        df_dsco_hc.index.values, df_dsco_hc.r_yang.values, color="b", lw=1, alpha=alpha
     )
     axs5.plot(
         df_dsco.index.values,
-        df_dsco.lambda_wav.values,
+        df_dsco.r_yang.values,
         "b-",
         lw=lw,
         ms=ms,
-        label=r"WAV",
+        label=r"Yang",
+    )
+
+    axs5.plot(
+        df_dsco_hc.index.values, df_dsco_hc.r_lin.values, color="g", lw=1, alpha=alpha
     )
     axs5.plot(
         df_dsco.index.values,
-        df_dsco.lambda_vas.values,
+        df_dsco.r_lin.values,
         "g-",
         lw=lw,
         ms=ms,
-        label=r"Vas",
-    )
-    axs5.plot(
-        df_dsco.index.values,
-        df_dsco.lambda_ekl.values,
-        "m-",
-        lw=lw,
-        ms=ms,
-        label=r"EKL",
+        label=r"Lin",
     )
     axs5.axvspan(t1, t2, alpha=alpha, color=bar_color)
 
     if (
-        df_dsco.lambda_phi.isnull().all()
-        and df_dsco.lambda_wav.isnull().all()
-        and df_dsco.lambda_vas.isnull().all()
-        and df_dsco.lambda_ekl.isnull().all()
+        df_dsco.r_shue.isnull().all()
+        and df_dsco.r_yang.isnull().all()
+        and df_dsco.r_lin.isnull().all()
     ):
         axs5.set_ylim([-1, 1])
     else:
-        axs5.set_ylim(0.97 * min_lambda, 1.03 * max_lambda)
+        axs5.set_ylim(0.97 * min_rmp, 1.03 * max_rmp)
 
-    lgnd5 = axs5.legend(fontsize=labelsize, loc="best", ncol=4)
-    lgnd5.legend_handles[0]._sizes = [labelsize]
+    # lgnd5 = axs5.legend(fontsize=labelsize, loc="best", ncol=4)
+    # lgnd5.legend_handles[0]._sizes = [labelsize]
+
+    # Add a text in the plot right outside the plot along the right edge in the middle for the y-axis
+    y_labels = [r"Lin", r"Yang", r"Shue"]
+    y_label_colors = ["g", "b", "r"]
+    for i, txt in enumerate(y_labels):
+        axs5.text(
+            1.01,
+            -0.05 + 0.10 * (i + 1),
+            txt,
+            ha="left",
+            va="center",
+            transform=axs5.transAxes,
+            fontsize=20,
+            color=y_label_colors[i],
+        )
 
     axs5.set_xlabel(
         f"Time on {df_dsco.index.date[0]} (UTC) [HH:MM]", fontsize=xlabelsize
     )
-    axs5.set_ylabel(r"$\lambda[^\circ]$", fontsize=ylabelsize)
-    """
+    axs5.set_ylabel(r"Magnetopause Distance [$R_{\oplus}$]", fontsize=ylabelsize)
+
     # Set axis tick-parameters
     axs1.tick_params(
         which="both",
@@ -402,27 +574,26 @@ def plot_figures_dsco_1day():
     )
     axs4.yaxis.set_label_position("right")
 
-    # axs5.tick_params(
-    #     which="both",
-    #     direction="in",
-    #     left=True,
-    #     labelleft=True,
-    #     top=True,
-    #     labeltop=False,
-    #     right=True,
-    #     labelright=False,
-    #     bottom=True,
-    #     labelbottom=True,
-    #     width=tickwidth,
-    #     length=ticklength,
-    #     labelsize=ticklabelsize,
-    #     labelrotation=0,
-    # )
-    # axs5.yaxis.set_label_position("left")
-    #
-    # date_form = DateFormatter("%H:%M")
-    # axs5.xaxis.set_major_formatter(date_form)
-    #
+    axs5.tick_params(
+        which="both",
+        direction="in",
+        left=True,
+        labelleft=True,
+        top=True,
+        labeltop=False,
+        right=True,
+        labelright=False,
+        bottom=True,
+        labelbottom=True,
+        width=tickwidth,
+        length=ticklength,
+        labelsize=ticklabelsize,
+        labelrotation=0,
+    )
+    axs5.yaxis.set_label_position("left")
+    date_form = DateFormatter("%H:%M")
+    axs5.xaxis.set_major_formatter(date_form)
+
     figure_time = (
         f"{datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}"
     )
@@ -455,10 +626,11 @@ def plot_figures_dsco_1day():
 
     # print(f'It took {round(time.time() - start, 3)} seconds')
     # return df
+    return df_dsco_hc
 
 
-# s.enter(0, 1, plot_figures_dsco_1day, (s,))
-# s.run()
+s.enter(0, 1, plot_figures_dsco_1day, (s,))
+s.run()
 
-if __name__ == "__main__":
-    plot_figures_dsco_1day()
+# if __name__ == "__main__":
+#     df_dsco_hc = plot_figures_dsco_1day()
