@@ -17,6 +17,20 @@ plt.style.use("dark_background")
 
 
 def progress_bar(progress, total):
+    """
+    Function to display a progress bar in the terminal
+
+    Parameters
+    ----------
+    progress : int
+        The current progress value
+    total : int
+        The total number of steps to be completed
+
+    Returns
+    -------
+    None
+    """
     bar_length = 50  # Length of the progress bar
     block = int(round(bar_length * progress / total))
     filled_color = "\033[42m"  # Green background
@@ -30,6 +44,24 @@ def progress_bar(progress, total):
 
 
 def update_progress_bar(sc, current_step, total_steps):
+    """
+    Function to update the progress bar in the terminal at regular intervals using the sched module
+    in Python standard library to schedule the next update of the progress bar at regular intervals
+    of time until the progress is complete and then print
+
+    Parameters
+    ----------
+    sc : sched.scheduler
+        The scheduler object
+    current_step : int
+        The current step in the progress
+    total_steps : int
+        The total number of steps to be completed
+
+    Returns
+    -------
+    None
+    """
     progress_bar(current_step, total_steps)
     if current_step < total_steps:
         # Schedule the next update
@@ -45,6 +77,19 @@ def update_progress_bar(sc, current_step, total_steps):
 
 
 def mp_r_shue(df):
+    """
+    Function to compute the magnetopause radius using the Shue et al., 1998 model
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The dataframe containing the solar wind parameters
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        The dataframe containing the solar wind parameters with the magnetopause radius computed
+    """
     theta = np.arctan2(np.sqrt(df["z_gsm"] ** 2 + df["y_gsm"] ** 2), df["x_gsm"])
     # Check if all theta values are nan, if they are then set them to 0
     if np.isnan(theta).all():
@@ -59,7 +104,19 @@ def mp_r_shue(df):
 
 
 def mp_r_yang(df):
+    """
+    Function to compute the magnetopause radius using the Yang et al., 2011 model
 
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The dataframe containing the solar wind parameters
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        The dataframe containing the solar wind parameters with the magnetopause radius computed
+    """
     for _, row in df.iterrows():
         bz = row["bz_gsm"]
         pdyn = row["p_dyn"]
@@ -71,7 +128,7 @@ def mp_r_yang(df):
 
         a1 = 11.646
         a2 = 0.216
-        a3 = 0.122
+        # a3 = 0.122
         a4 = 6.215
         a5 = 0.578
         a6 = -0.009
@@ -94,6 +151,19 @@ def mp_r_yang(df):
 
 
 def mp_r_lin(df):
+    """
+    Function to compute the magnetopause radius using the Lin et al., 2008 model
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The dataframe containing the solar wind parameters
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        The dataframe containing the solar wind parameters with the magnetopause radius computed
+    """
     a0 = 12.544
     a1 = -0.194
     a2 = 0.305
@@ -116,7 +186,7 @@ def mp_r_lin(df):
     a19 = 1.103
     a20 = -0.907
     a21 = 1.450
-    sigma = 1.033
+    # sigma = 1.033
 
     pmag = 0  # magnetic pressure, assumed to be zero
     theta = 0
@@ -162,9 +232,8 @@ def mp_r_lin(df):
 
 
 def plot_figures_ace_1day(sc=None):
-    # for foo in range(1):
     """
-    Download and upload data the ACE database hosted at https://services.swpc.noaa.gov/text
+    Download and upload data the ACE database hosted at https://services.swpc.noaa.gov/text/ace-swepam-1-day.json
     """
     # Set up the time to run the job
 
@@ -173,7 +242,7 @@ def plot_figures_ace_1day(sc=None):
 
     # start = time.time()
     print(
-        f"\nCode execution for ace 1day data started at at (UTC):"
+        "\nCode execution for ace 1day data started at at (UTC):"
         + f"{datetime.datetime.fromtimestamp(time.time(), datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}\n"
     )
 
@@ -294,7 +363,7 @@ def plot_figures_ace_1day(sc=None):
     # cmap = plt.cm.viridis
     # pad = 0.02
     # clabelpad = 10
-    labelsize = 22
+    # labelsize = 22
     ticklabelsize = 20
     # cticklabelsize = 15
     # clabelsize = 15
@@ -311,7 +380,7 @@ def plot_figures_ace_1day(sc=None):
 
     ms = 2
     lw = 2
-    ncols = 2
+    # ncols = 2
     alpha = 0.3
 
     try:

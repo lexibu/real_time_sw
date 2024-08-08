@@ -17,6 +17,20 @@ plt.style.use("dark_background")
 
 
 def progress_bar(progress, total):
+    """
+    Function to display a progress bar in the terminal
+
+    Parameters
+    ----------
+    progress : int
+        The current progress value
+    total : int
+        The total number of steps to be completed
+
+    Returns
+    -------
+    None
+    """
     bar_length = 50  # Length of the progress bar
     block = int(round(bar_length * progress / total))
     filled_color = "\033[42m"  # Green background
@@ -30,6 +44,24 @@ def progress_bar(progress, total):
 
 
 def update_progress_bar(sc, current_step, total_steps):
+    """
+    Function to update the progress bar in the terminal at regular intervals using the sched module
+    in Python standard library to schedule the next update of the progress bar at regular intervals
+    of time until the progress is complete and then print
+
+    Parameters
+    ----------
+    sc : sched.scheduler
+        The scheduler object
+    current_step : int
+        The current step in the progress
+    total_steps : int
+        The total number of steps to be completed
+
+    Returns
+    -------
+    None
+    """
     progress_bar(current_step, total_steps)
     if current_step < total_steps:
         # Schedule the next update
@@ -45,6 +77,19 @@ def update_progress_bar(sc, current_step, total_steps):
 
 
 def mp_r_shue(df):
+    """
+    Function to compute the magnetopause radius using the Shue et al., 1998 model
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The dataframe containing the solar wind parameters
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        The dataframe containing the solar wind parameters with the magnetopause radius computed
+    """
     theta = np.arctan2(np.sqrt(df["z_gsm"] ** 2 + df["y_gsm"] ** 2), df["x_gsm"])
     # Check if all theta values are nan, if they are then set them to 0
     if np.isnan(theta).all():
@@ -59,7 +104,19 @@ def mp_r_shue(df):
 
 
 def mp_r_yang(df):
+    """
+    Function to compute the magnetopause radius using the Yang et al., 2011 model
 
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The dataframe containing the solar wind parameters
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        The dataframe containing the solar wind parameters with the magnetopause radius computed
+    """
     for _, row in df.iterrows():
         bz = row["bz_gsm"]
         pdyn = row["p_dyn"]
@@ -71,7 +128,7 @@ def mp_r_yang(df):
 
         a1 = 11.646
         a2 = 0.216
-        a3 = 0.122
+        # a3 = 0.122
         a4 = 6.215
         a5 = 0.578
         a6 = -0.009
@@ -94,6 +151,19 @@ def mp_r_yang(df):
 
 
 def mp_r_lin(df):
+    """
+    Function to compute the magnetopause radius using the Lin et al., 2008 model
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The dataframe containing the solar wind parameters
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        The dataframe containing the solar wind parameters with the magnetopause radius computed
+    """
     a0 = 12.544
     a1 = -0.194
     a2 = 0.305
@@ -116,7 +186,7 @@ def mp_r_lin(df):
     a19 = 1.103
     a20 = -0.907
     a21 = 1.450
-    sigma = 1.033
+    # sigma = 1.033
 
     pmag = 0  # magnetic pressure, assumed to be zero
     theta = 0
@@ -164,7 +234,24 @@ def mp_r_lin(df):
 def plot_figures_dsco_1day(sc=None):
     # for foo in range(1):
     """
-    Download and upload data the ACE database hosted at https://services.swpc.noaa.gov/text
+    Download and upload data the ACE database hosted at
+    https://services.swpc.noaa.gov/text/ace-swepam-1-day.json
+    The data is then processed to compute the solar wind parameters and the magnetopause radius using
+    the Shue et al., 1998 model, the Yang et al., 2011 model and the Lin et al., 2008 model.
+    The data is then plotted and saved to a file in the Dropbox folder. The function is scheduled to
+    run at regular intervals using the sched module in Python standard library to update the plots at
+    regular intervals of time.
+
+    Parameters
+    ----------
+    sc : sched.scheduler
+        The scheduler object
+
+    Returns
+    -------
+    df_dsco_hc : pandas.DataFrame
+        The dataframe containing the solar wind parameters
+
     """
     # Set up the time to run the job
     s.enter(0, 1, update_progress_bar, (sc, 0, 52))
@@ -294,7 +381,7 @@ def plot_figures_dsco_1day(sc=None):
     # cmap = plt.cm.viridis
     # pad = 0.02
     # clabelpad = 10
-    labelsize = 22
+    # labelsize = 22
     ticklabelsize = 20
     # cticklabelsize = 15
     # clabelsize = 15
@@ -311,7 +398,7 @@ def plot_figures_dsco_1day(sc=None):
 
     ms = 2
     lw = 2
-    ncols = 2
+    # ncols = 2
     alpha = 0.3
 
     try:
@@ -344,12 +431,12 @@ def plot_figures_dsco_1day(sc=None):
     axs1.plot(
         df_dsco.index.values,
         df_dsco.bm.values,
-        "k-.",
+        "w-.",
         lw=lw,
         ms=ms,
         label=r"$|\vec{B}|$",
     )
-    axs1.plot(df_dsco.index.values, -df_dsco.bm.values, "k-.", lw=lw, ms=ms)
+    axs1.plot(df_dsco.index.values, -df_dsco.bm.values, "w-.", lw=lw, ms=ms)
     axs1.axvspan(t1, t2, alpha=alpha, color=bar_color)
 
     if df_dsco.bm.isnull().all():
@@ -363,7 +450,7 @@ def plot_figures_dsco_1day(sc=None):
     # lgnd1.legend_handles[0]._sizes = [labelsize]
     # Add a text in the plot right outside the plot along the right edge in the middle
     y_labels = [r"$|\vec{B}|$", r"$B_x$", r"$B_y$", r"$B_z$"]
-    y_label_colors = ["k", "r", "b", "g"]
+    y_label_colors = ["w", "r", "b", "g"]
     for i, txt in enumerate(y_labels):
         axs1.text(
             1.01,
@@ -465,12 +552,12 @@ def plot_figures_dsco_1day(sc=None):
     )
 
     axs5.plot(
-        df_dsco_hc.index.values, df_dsco_hc.r_shue.values, color="r", lw=1, alpha=alpha
+        df_dsco_hc.index.values, df_dsco_hc.r_shue.values, color="w", lw=1, alpha=alpha
     )
     axs5.plot(
         df_dsco.index.values,
         df_dsco.r_shue.values,
-        "r-",
+        "w-",
         lw=lw,
         ms=ms,
         label=r"Shue",
@@ -515,7 +602,7 @@ def plot_figures_dsco_1day(sc=None):
 
     # Add a text in the plot right outside the plot along the right edge in the middle for the y-axis
     y_labels = [r"Lin", r"Yang", r"Shue"]
-    y_label_colors = ["g", "b", "r"]
+    y_label_colors = ["g", "b", "w"]
     for i, txt in enumerate(y_labels):
         axs5.text(
             1.01,
