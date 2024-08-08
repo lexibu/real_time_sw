@@ -2,7 +2,9 @@
 import datetime
 import sched
 import time
+import sys
 
+import geopack.geopack as gp
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -12,6 +14,34 @@ s = sched.scheduler(time.time, time.sleep)
 
 # Set the dark mode for the plots
 plt.style.use("dark_background")
+
+
+def progress_bar(progress, total):
+    bar_length = 50  # Length of the progress bar
+    block = int(round(bar_length * progress / total))
+    filled_color = "\033[42m"  # Green background
+    reset_color = "\033[0m"  # Reset color
+    progress_display = (
+        filled_color + " " * block + reset_color + "-" * (bar_length - block)
+    )
+    text = f"\rNext update in : [{progress_display}] {total - progress} seconds"
+    sys.stdout.write(text)
+    sys.stdout.flush()
+
+
+def update_progress_bar(sc, current_step, total_steps):
+    progress_bar(current_step, total_steps)
+    if current_step < total_steps:
+        # Schedule the next update
+        sc.enter(
+            52 / total_steps,
+            1,
+            update_progress_bar,
+            (sc, current_step + 1, total_steps),
+        )
+    # else:
+    #     # Print a new line when the progress is complete
+    #     print("")
 
 
 def mp_r_shue(df):
@@ -137,11 +167,13 @@ def plot_figures_ace_1day(sc=None):
     Download and upload data the ACE database hosted at https://services.swpc.noaa.gov/text
     """
     # Set up the time to run the job
-    s.enter(60, 1, plot_figures_ace_1day, (sc,))
+
+    s.enter(0, 1, update_progress_bar, (sc, 0, 52))
+    s.enter(60, 2, plot_figures_ace_1day, (sc,))
 
     # start = time.time()
     print(
-        f"Code execution for ace 1day data started at at (UTC):"
+        f"\nCode execution for ace 1day data started at at (UTC):"
         + f"{datetime.datetime.fromtimestamp(time.time(), datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}\n"
     )
 
@@ -240,7 +272,8 @@ def plot_figures_ace_1day(sc=None):
 
     # Compute the dipole tilt angle
     for i in range(len(df_ace)):
-        tilt_angle_gp = gp.recalc(df_ace.unix_time[i])
+        # tilt_angle_gp = gp.recalc(df_ace.unix_time[i])
+        tilt_angle_gp = gp.recalc(df_ace.unix_time.iloc[i])
         df_ace.loc[df_ace.index[i], "dipole_tilt"] = np.degrees(tilt_angle_gp)
 
     # Compute the magnetopause radius using the Shue et al., 1998 model
@@ -620,6 +653,13 @@ def plot_figures_ace_1day(sc=None):
 
 s.enter(0, 1, plot_figures_ace_1day, (s,))
 s.run()
+
+# Print that the code has finished running and is waiting for the next update in 60 seconds
+print(
+    f"Code execution for ace 1day data finished at (UTC):"
+    + f"{datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}"
+)
+# Display a progress bar for the next update
 
 
 # if __name__ == "__main__":
