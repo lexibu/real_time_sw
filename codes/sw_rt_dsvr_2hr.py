@@ -2,8 +2,8 @@
 import datetime
 import sched
 import time
-import sys
 import importlib
+
 import geopack.geopack as gp
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,48 +11,27 @@ import pandas as pd
 from matplotlib.dates import DateFormatter
 
 import magnetopause_calculator as mp_calc
-import misc_codes as m_codes
 
 # Reload the module to get the latest changes
 importlib.reload(mp_calc)
-importlib.reload(m_codes)
 
-s = sched.scheduler(time.time, time.sleep)
+# s = sched.scheduler(time.time, time.sleep)
 
 # Set the dark mode for the plots
 plt.style.use("dark_background")
 
 
-def plot_figures_dsco_1day(sc=None):
-    # for foo in range(1):
+def plot_figures_dsco():
+    # for xxx in range(1):
     """
-    Download and upload data the ACE database hosted at
-    https://services.swpc.noaa.gov/text/ace-swepam-1-day.json
-    The data is then processed to compute the solar wind parameters and the magnetopause radius using
-    the Shue et al., 1998 model, the Yang et al., 2011 model and the Lin et al., 2008 model.
-    The data is then plotted and saved to a file in the Dropbox folder. The function is scheduled to
-    run at regular intervals using the sched module in Python standard library to update the plots at
-    regular intervals of time.
-
-    Parameters
-    ----------
-    sc : sched.scheduler
-        The scheduler object
-
-    Returns
-    -------
-    df_dsco_hc : pandas.DataFrame
-        The dataframe containing the solar wind parameters
-
+    Download and upload data the DSCOVR database hosted at https://services.swpc.noaa.gov/text
     """
     # Set up the time to run the job
-    s.enter(0, 1, m_codes.update_progress_bar, (sc, 0, 52))
-    s.enter(60, 1, plot_figures_dsco_1day, (sc,))
+    # s.enter(60, 1, plot_figures_dsco, (sc,))
 
-    # start = time.time()
     print(
-        "\nCode execution for DSCOVR 1day data started at at (UTC):"
-        + f"{datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}"
+        "Code execution for DSCOVR 2Hr started at (UTC):"
+        + f"{datetime.datetime.fromtimestamp(time.time(), datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}\n"
     )
 
     # Set the font style to Times New Roman
@@ -60,13 +39,12 @@ def plot_figures_dsco_1day(sc=None):
     plt.rc("font", **font)
     plt.rc("text", usetex=True)
 
-    # URL of dscovr files
-    dscovr_url_mag = "https://services.swpc.noaa.gov/products/solar-wind/mag-1-day.json"
-    dscovr_url_plas = (
-        "https://services.swpc.noaa.gov/products/solar-wind/plasma-1-day.json"
+    # URL of sweap and magnetometer files
+    dscovr_url_mag = (
+        "https://services.swpc.noaa.gov/products/solar-wind/mag-2-hour.json"
     )
-    dscovr_url_eph = (
-        "https://services.swpc.noaa.gov/products/solar-wind/ephemerides.json"
+    dscovr_url_plas = (
+        "https://services.swpc.noaa.gov/products/solar-wind/plasma-2-hour.json"
     )
 
     dscovr_key_list_mag = [
@@ -79,58 +57,40 @@ def plot_figures_dsco_1day(sc=None):
         "bt",
     ]
     dscovr_key_list_plas = ["time_tag", "np", "vp", "Tp"]
-    dscovr_key_list_eph = [
-        "time_tag",
-        "x_gse",
-        "y_gse",
-        "z_gse",
-        "vx_gse",
-        "vy_gse",
-        "vz_gse",
-        "x_gsm",
-        "y_gsm",
-        "z_gsm",
-        "vx_gsm",
-        "vy_gsm",
-        "vz_gsm",
-    ]
+    # dscovr_key_list_eph = ["time_tag", "x_gse", "y_gse", "z_gse", "vx_gse", "vy_gse", "vz_gse",
+    #                       "x_gsm", "y_gsm", "z_gsm", "vx_gsm", "vy_gsm", "vz_gsm"]
 
     df_dsco_mag = pd.read_json(dscovr_url_mag, orient="columns")
     df_dsco_plas = pd.read_json(dscovr_url_plas, orient="columns")
-    df_dsco_eph = pd.read_json(dscovr_url_eph, orient="columns")
+    # df_dsco_eph = pd.read_json(dscovr_url_eph, orient='columns')
 
     # Drop the first row of the dataframe to get rid of all strings
     df_dsco_mag.drop([0], inplace=True)
     df_dsco_plas.drop([0], inplace=True)
-    df_dsco_eph.drop([0], inplace=True)
+    # df_dsco_eph.drop([0], inplace=True)
 
     # Set column names to the list of keys
     df_dsco_mag.columns = dscovr_key_list_mag
     df_dsco_plas.columns = dscovr_key_list_plas
-    df_dsco_eph.columns = dscovr_key_list_eph
+    # df_dsco_eph.columns = dscovr_key_list_eph
 
     # Set the index to the time_tag column and convert it to a datetime object
     df_dsco_mag.index = pd.to_datetime(df_dsco_mag.time_tag)
     df_dsco_plas.index = pd.to_datetime(df_dsco_plas.time_tag)
-    df_dsco_eph.index = pd.to_datetime(df_dsco_eph.time_tag)
+    # df_dsco_eph.index = pd.to_datetime(df_dsco_eph.time_tag)
 
     # Drop the time_tag column
     df_dsco_mag.drop(["time_tag"], axis=1, inplace=True)
     df_dsco_plas.drop(["time_tag"], axis=1, inplace=True)
-    df_dsco_eph.drop(["time_tag"], axis=1, inplace=True)
+    # df_dsco_eph.drop(["time_tag"], axis=1, inplace=True)
 
-    df_dsco_eph = df_dsco_eph[
-        (
-            df_dsco_eph.index
-            >= np.nanmin([df_dsco_mag.index.min(), df_dsco_plas.index.min()])
-        )
-        & (
-            df_dsco_eph.index
-            <= np.nanmax([df_dsco_mag.index.max(), df_dsco_plas.index.max()])
-        )
-    ]
+    # df_dsco_eph = df_dsco_eph[(df_dsco_eph.index >=
+    #                           np.nanmin([df_dsco_mag.index.min(), df_dsco_plas.index.min()])) &
+    #                          (df_dsco_eph.index <=
+    #                           np.nanmax([df_dsco_mag.index.max(), df_dsco_plas.index.max()]))]
 
-    df_dsco = pd.concat([df_dsco_mag, df_dsco_plas, df_dsco_eph], axis=1)
+    # df_dsco = pd.concat([df_dsco_mag, df_dsco_plas, df_dsco_eph], axis=1)
+    df_dsco = pd.concat([df_dsco_mag, df_dsco_plas], axis=1)
 
     # for key in df_dsco.keys():
     #     df_dsco[key] = pd.to_numeric(df_dsco[key])
@@ -152,6 +112,7 @@ def plot_figures_dsco_1day(sc=None):
 
     # Compute the dipole tilt angle
     for i in range(len(df_dsco)):
+        # tilt_angle_gp = gp.recalc(df_dsco.unix_time[i])
         tilt_angle_gp = gp.recalc(df_dsco.unix_time.iloc[i])
         df_dsco.loc[df_dsco.index[i], "dipole_tilt"] = np.degrees(tilt_angle_gp)
 
@@ -164,11 +125,6 @@ def plot_figures_dsco_1day(sc=None):
     # Compute the magnetopause radius using the Lin et al., 2008 model
     df_dsco = mp_calc.mp_r_lin(df_dsco)
 
-    # Make a copy of the dataframe at original cadence
-    df_dsco_hc = df_dsco.copy()
-
-    # Compute 1 hour rolling average for each of the parameters and save it to the dataframe
-    df_dsco = df_dsco.rolling("h", center=True).median()
     # Define the plot parameters
     # cmap = plt.cm.viridis
     # pad = 0.02
@@ -191,7 +147,6 @@ def plot_figures_dsco_1day(sc=None):
     ms = 2
     lw = 2
     # ncols = 2
-    alpha = 0.3
 
     try:
         plt.close("all")
@@ -207,20 +162,21 @@ def plot_figures_dsco_1day(sc=None):
     fig.subplots_adjust(
         left=0.01, right=0.95, top=0.95, bottom=0.01, wspace=0.02, hspace=0.0
     )
+    fig.suptitle("2 Hours ACE Real Time Data", fontsize=24)
 
     # Magnetic field plot
     gs = fig.add_gridspec(6, 1)
     axs1 = fig.add_subplot(gs[0, 0])
-    axs1.plot(
+    (_,) = axs1.plot(
         df_dsco.index.values, df_dsco.bx_gsm.values, "r-", lw=lw, ms=ms, label=r"$B_x$"
     )
-    axs1.plot(
+    (_,) = axs1.plot(
         df_dsco.index.values, df_dsco.by_gsm.values, "b-", lw=lw, ms=ms, label=r"$B_y$"
     )
-    axs1.plot(
+    (_,) = axs1.plot(
         df_dsco.index.values, df_dsco.bz_gsm.values, "g-", lw=lw, ms=ms, label=r"$B_z$"
     )
-    axs1.plot(
+    (_,) = axs1.plot(
         df_dsco.index.values,
         df_dsco.bm.values,
         "w-.",
@@ -228,7 +184,7 @@ def plot_figures_dsco_1day(sc=None):
         ms=ms,
         label=r"$|\vec{B}|$",
     )
-    axs1.plot(df_dsco.index.values, -df_dsco.bm.values, "w-.", lw=lw, ms=ms)
+    (_,) = axs1.plot(df_dsco.index.values, -df_dsco.bm.values, "w-.", lw=lw, ms=ms)
     axs1.axvspan(t1, t2, alpha=alpha, color=bar_color)
 
     if df_dsco.bm.isnull().all():
@@ -238,8 +194,7 @@ def plot_figures_dsco_1day(sc=None):
 
     axs1.set_xlim(df_dsco.index.min(), df_dsco.index.max())
     axs1.set_ylabel(r"B [nT]", fontsize=20)
-    # lgnd1 = axs1.legend(fontsize=labelsize, loc="best", ncol=ncols)
-    # lgnd1.legend_handles[0]._sizes = [labelsize]
+
     # Add a text in the plot right outside the plot along the right edge in the middle
     y_labels = [r"$|\vec{B}|$", r"$B_x$", r"$B_y$", r"$B_z$"]
     y_label_colors = ["w", "r", "b", "g"]
@@ -254,11 +209,13 @@ def plot_figures_dsco_1day(sc=None):
             fontsize=20,
             color=y_label_colors[i],
         )
-    fig.suptitle("1 Day DSCOVR Real Time Data", fontsize=22)
+
+    # axs1.text(0.98, 0.95, f'{model_type}', horizontalalignment='right', verticalalignment='center',
+    #          transform=axs1.transAxes, fontsize=18)
 
     # Density plot
     axs2 = fig.add_subplot(gs[1, 0], sharex=axs1)
-    axs2.plot(
+    (_,) = axs2.plot(
         df_dsco.index.values,
         df_dsco.np.values,
         color="bisque",
@@ -267,65 +224,49 @@ def plot_figures_dsco_1day(sc=None):
         ms=ms,
         label=r"$n_p$",
     )
-    axs2.plot(
-        df_dsco_hc.index.values, df_dsco_hc.np.values, color="bisque", lw=1, alpha=alpha
-    )
     axs2.axvspan(t1, t2, alpha=alpha, color=bar_color)
 
     if df_dsco.np.isnull().all():
-        axs2.set_ylim([-1, 1])
+        axs2.set_ylim([0, 1])
     else:
         axs2.set_ylim(0.9 * np.nanmin(df_dsco.np), 1.1 * np.nanmax(df_dsco.np))
 
-    # lgnd2 = axs2.legend(fontsize=labelsize, loc="best", ncol=ncols)
-    # lgnd2.legend_handles[0]._sizes = [labelsize]
-    axs2.set_ylabel(r"$n_p [1/\rm{cm^{3}}]$", fontsize=ylabelsize, color="r")
+    axs2.set_ylabel(r"$n_p [1/\rm{cm^{3}}]$", fontsize=ylabelsize, color="bisque")
 
     # Speed plot
     axs3 = fig.add_subplot(gs[2, 0], sharex=axs1)
-    axs3.plot(
+    (_,) = axs3.plot(
         df_dsco.index.values, df_dsco.vp.values, "c-", lw=lw, ms=ms, label=r"$V_p$"
-    )
-    axs3.plot(
-        df_dsco_hc.index.values, df_dsco_hc.vp.values, color="c", lw=1, alpha=alpha
     )
     axs3.axvspan(t1, t2, alpha=alpha, color=bar_color)
 
     if df_dsco.vp.isnull().all():
-        axs3.set_ylim([-1, 1])
+        axs3.set_ylim([0, 1])
     else:
         axs3.set_ylim(0.9 * np.nanmin(df_dsco.vp), 1.1 * np.nanmax(df_dsco.vp))
 
-    # lgnd3 = axs3.legend(fontsize=labelsize, loc="best", ncol=ncols)
-    # lgnd3.legend_handles[0]._sizes = [labelsize]
     axs3.set_ylabel(r"$V_p [\rm{km/sec}]$", fontsize=ylabelsize, color="c")
 
     # Flux plot
     axs4 = fig.add_subplot(gs[3, 0], sharex=axs1)
-    axs4.plot(
+    (_,) = axs4.plot(
         df_dsco.index.values, df_dsco.flux.values, "w-", lw=lw, ms=ms, label=r"flux"
-    )
-    axs4.plot(
-        df_dsco_hc.index.values, df_dsco_hc.flux.values, color="w", lw=1, alpha=alpha
     )
     axs4.axvspan(t1, t2, alpha=alpha, color=bar_color)
 
     if df_dsco.flux.isnull().all():
-        axs4.set_ylim([-1, 1])
+        axs4.set_ylim([0, 1])
     else:
         axs4.set_ylim(
             np.nanmin([0.9 * np.nanmin(df_dsco.flux), 2.4]),
             np.nanmax([1.1 * np.nanmax(df_dsco.flux), 3.3]),
         )
 
-    # lgnd4 = axs4.legend(fontsize=labelsize, loc="best", ncol=ncols)
-    # lgnd4.legend_handles[0]._sizes = [labelsize]
     axs4.set_ylabel(
         r"~~~~Flux\\ $10^8 [\rm{1/(sec\, cm^2)}]$", fontsize=ylabelsize, color="w"
     )
 
     # Cusp latitude plot
-
     axs5 = fig.add_subplot(gs[4:, 0], sharex=axs1)
 
     min_rmp = np.nanmin(
@@ -344,9 +285,6 @@ def plot_figures_dsco_1day(sc=None):
     )
 
     axs5.plot(
-        df_dsco_hc.index.values, df_dsco_hc.r_shue.values, color="w", lw=1, alpha=alpha
-    )
-    axs5.plot(
         df_dsco.index.values,
         df_dsco.r_shue.values,
         "w-",
@@ -356,9 +294,6 @@ def plot_figures_dsco_1day(sc=None):
     )
 
     axs5.plot(
-        df_dsco_hc.index.values, df_dsco_hc.r_yang.values, color="b", lw=1, alpha=alpha
-    )
-    axs5.plot(
         df_dsco.index.values,
         df_dsco.r_yang.values,
         "b-",
@@ -367,9 +302,6 @@ def plot_figures_dsco_1day(sc=None):
         label=r"Yang",
     )
 
-    axs5.plot(
-        df_dsco_hc.index.values, df_dsco_hc.r_lin.values, color="g", lw=1, alpha=alpha
-    )
     axs5.plot(
         df_dsco.index.values,
         df_dsco.r_lin.values,
@@ -389,8 +321,12 @@ def plot_figures_dsco_1day(sc=None):
     else:
         axs5.set_ylim(0.97 * min_rmp, 1.03 * max_rmp)
 
-    # lgnd5 = axs5.legend(fontsize=labelsize, loc="best", ncol=4)
-    # lgnd5.legend_handles[0]._sizes = [labelsize]
+    count = 0
+    for count in range(len(df_dsco.index)):
+        if ~np.isnan(df_dsco.year.iloc[count]) or count >= len(df_dsco.index):
+            break
+        else:
+            count = count + 1
 
     # Add a text in the plot right outside the plot along the right edge in the middle for the y-axis
     y_labels = [r"Lin", r"Yang", r"Shue"]
@@ -407,12 +343,15 @@ def plot_figures_dsco_1day(sc=None):
             color=y_label_colors[i],
         )
 
+    # axs5.set_xlabel(
+    #     f"Time on {int(df_dsco.year.iloc[count])}-{df_dsco.month.iloc[count]}-{df_dsco.date.iloc[count]} (UTC)",
+    #     fontsize=xlabelsize,
+    # )
     axs5.set_xlabel(
         f"Time on {df_dsco.index.date[0]} (UTC) [HH:MM]", fontsize=xlabelsize
     )
     axs5.set_ylabel(r"Magnetopause Distance [$R_{\oplus}$]", fontsize=ylabelsize)
-
-    # Set axis tick-parameters
+    # Set axis ticw-parameters
     axs1.tick_params(
         which="both",
         direction="in",
@@ -500,6 +439,7 @@ def plot_figures_dsco_1day(sc=None):
         labelrotation=0,
     )
     axs5.yaxis.set_label_position("left")
+
     date_form = DateFormatter("%H:%M")
     axs5.xaxis.set_major_formatter(date_form)
 
@@ -517,29 +457,21 @@ def plot_figures_dsco_1day(sc=None):
         fontsize=20,
         rotation="vertical",
     )
-    fig_name = "/home/cephadrius/Dropbox/rt_sw/rt_sw_dsco_parameters_1day.png"
+
+    fig_name = "/home/cephadrius/Dropbox/rt_sw/sw_dscovr_parameters_2hr.png"
     plt.savefig(fig_name, bbox_inches="tight", pad_inches=0.05, format="png", dpi=300)
-
-    # axs1.set_ylim([-22, 22])
-    # axs2.set_ylim([0, 40])
-    # axs3.set_ylim([250, 700])
-    # axs4.set_ylim([0, 20])
-    # axs5.set_ylim([60, 85])
-
-    # plt.tight_layout()
     plt.close("all")
     print(
-        "Figure saved at (UTC):"
+        "Figure saved for ACE at (UTC):"
         + f"{datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}"
     )
 
     # print(f'It took {round(time.time() - start, 3)} seconds')
     # return df
-    return df_dsco_hc
 
 
-s.enter(0, 1, plot_figures_dsco_1day, (s,))
-s.run()
+# s.enter(0, 1, plot_figures_ace, (s,))
+# s.run()
 
-# if __name__ == "__main__":
-#     df_dsco_hc = plot_figures_dsco_1day()
+if __name__ == "__main__":
+    df_dsco = plot_figures_dsco()
