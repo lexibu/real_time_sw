@@ -350,13 +350,6 @@ def plot_figures_ace():
     else:
         axs5.set_ylim(0.97 * min_rmp, 1.03 * max_rmp)
 
-    count = 0
-    for count in range(len(df_ace.index)):
-        if ~np.isnan(df_ace.year.iloc[count]) or count >= len(df_ace.index):
-            break
-        else:
-            count = count + 1
-
     # Add a text in the plot right outside the plot along the right edge in the middle for the y-axis
     y_labels = [r"Lin", r"Yang", r"Shue"]
     y_label_colors = ["g", "b", "w"]
@@ -372,10 +365,6 @@ def plot_figures_ace():
             color=y_label_colors[i],
         )
 
-    # axs5.set_xlabel(
-    #     f"Time on {int(df_ace.year.iloc[count])}-{df_ace.month.iloc[count]}-{df_ace.date.iloc[count]} (UTC)",
-    #     fontsize=xlabelsize,
-    # )
     axs5.set_xlabel(
         f"Time on {df_ace.index.date[0]} (UTC) [HH:MM]", fontsize=xlabelsize
     )
@@ -503,4 +492,4 @@ def plot_figures_ace():
 # s.run()
 
 if __name__ == "__main__":
-    plot_figures_ace()
+    df_ace = plot_figures_ace()

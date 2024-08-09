@@ -85,7 +85,7 @@ def mp_r_yang(df):
 
 def mp_r_lin(df):
     """
-    Function to compute the magnetopause radius using the Lin et al., 2008 model
+    Function to compute the magnetopause radius using the Lin et al., JGR, 2010 model
 
     Parameters
     ----------
