@@ -15,19 +15,19 @@ import magnetopause_calculator as mp_calc
 # Reload the module to get the latest changes
 importlib.reload(mp_calc)
 
-# s = sched.scheduler(time.time, time.sleep)
+s = sched.scheduler(time.time, time.sleep)
 
 # Set the dark mode for the plots
 plt.style.use("dark_background")
 
 
-def plot_figures_dsco():
+def plot_figures_dsco(sc=None):
     # for xxx in range(1):
     """
     Download and upload data the DSCOVR database hosted at https://services.swpc.noaa.gov/text
     """
     # Set up the time to run the job
-    # s.enter(60, 1, plot_figures_dsco, (sc,))
+    s.enter(60, 1, plot_figures_dsco, (sc,))
 
     print(
         "Code execution for DSCOVR 2Hr started at (UTC):"
@@ -162,30 +162,50 @@ def plot_figures_dsco():
     fig.subplots_adjust(
         left=0.01, right=0.95, top=0.95, bottom=0.01, wspace=0.02, hspace=0.0
     )
-    fig.suptitle("2 Hours ACE Real Time Data", fontsize=24)
+    fig.suptitle("2 Hours DSCOVR Real Time Data", fontsize=24)
 
     # Magnetic field plot
     gs = fig.add_gridspec(6, 1)
     axs1 = fig.add_subplot(gs[0, 0])
     (_,) = axs1.plot(
-        df_dsco.index.values, df_dsco.bx_gsm.values, "r-", lw=lw, ms=ms, label=r"$B_x$"
+        df_dsco.index.values,
+        df_dsco.bx_gsm.values,
+        "r-",
+        lw=0.5 * lw,
+        ms=ms,
+        label=r"$B_x$",
     )
     (_,) = axs1.plot(
-        df_dsco.index.values, df_dsco.by_gsm.values, "b-", lw=lw, ms=ms, label=r"$B_y$"
+        df_dsco.index.values,
+        df_dsco.by_gsm.values,
+        "b-",
+        lw=0.5 * lw,
+        ms=ms,
+        label=r"$B_y$",
     )
     (_,) = axs1.plot(
-        df_dsco.index.values, df_dsco.bz_gsm.values, "g-", lw=lw, ms=ms, label=r"$B_z$"
+        df_dsco.index.values,
+        df_dsco.bz_gsm.values,
+        "g-",
+        lw=1.5 * lw,
+        ms=ms,
+        label=r"$B_z$",
     )
     (_,) = axs1.plot(
         df_dsco.index.values,
         df_dsco.bm.values,
         "w-.",
-        lw=lw,
+        lw=0.5 * lw,
         ms=ms,
         label=r"$|\vec{B}|$",
     )
-    (_,) = axs1.plot(df_dsco.index.values, -df_dsco.bm.values, "w-.", lw=lw, ms=ms)
+    (_,) = axs1.plot(
+        df_dsco.index.values, -df_dsco.bm.values, "w-.", lw=0.5 * lw, ms=ms
+    )
     axs1.axvspan(t1, t2, alpha=alpha, color=bar_color)
+
+    # Add a white line at y=0
+    axs1.axhline(0, color="w", lw=1, ls="--")
 
     if df_dsco.bm.isnull().all():
         axs1.set_ylim([-1, 1])
@@ -196,7 +216,7 @@ def plot_figures_dsco():
     axs1.set_ylabel(r"B [nT]", fontsize=20)
 
     # Add a text in the plot right outside the plot along the right edge in the middle
-    y_labels = [r"$|\vec{B}|$", r"$B_x$", r"$B_y$", r"$B_z$"]
+    y_labels = [r"$|\vec{B}|$", r"$B_x$", r"$B_y$", r"$\textbf{B}_z$"]
     y_label_colors = ["w", "r", "b", "g"]
     for i, txt in enumerate(y_labels):
         axs1.text(
@@ -451,7 +471,7 @@ def plot_figures_dsco():
     plt.savefig(fig_name, bbox_inches="tight", pad_inches=0.05, format="png", dpi=300)
     plt.close("all")
     print(
-        "Figure saved for ACE at (UTC):"
+        "Figure saved for DSCOVR at (UTC):"
         + f"{datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}"
     )
 
@@ -459,8 +479,8 @@ def plot_figures_dsco():
     # return df
 
 
-# s.enter(0, 1, plot_figures_ace, (s,))
-# s.run()
+s.enter(0, 1, plot_figures_dsco, (s,))
+s.run()
 
-if __name__ == "__main__":
-    df_dsco = plot_figures_dsco()
+# if __name__ == "__main__":
+#     df_dsco = plot_figures_dsco()

@@ -202,20 +202,42 @@ def plot_figures_ace():
     gs = fig.add_gridspec(6, 1)
     axs1 = fig.add_subplot(gs[0, 0])
     (_,) = axs1.plot(
-        df_ace.index.values, df_ace.bx_gsm.values, "r-", lw=lw, ms=ms, label=r"$B_x$"
+        df_ace.index.values,
+        df_ace.bx_gsm.values,
+        "r-",
+        lw=0.5 * lw,
+        ms=ms,
+        label=r"$B_x$",
     )
     (_,) = axs1.plot(
-        df_ace.index.values, df_ace.by_gsm.values, "b-", lw=lw, ms=ms, label=r"$B_y$"
+        df_ace.index.values,
+        df_ace.by_gsm.values,
+        "b-",
+        lw=0.5 * lw,
+        ms=ms,
+        label=r"$B_y$",
     )
     (_,) = axs1.plot(
-        df_ace.index.values, df_ace.bz_gsm.values, "g-", lw=lw, ms=ms, label=r"$B_z$"
+        df_ace.index.values,
+        df_ace.bz_gsm.values,
+        "g-",
+        lw=1.5 * lw,
+        ms=ms,
+        label=r"$B_z$",
     )
     (_,) = axs1.plot(
-        df_ace.index.values, df_ace.bm.values, "w-.", lw=lw, ms=ms, label=r"$|\vec{B}|$"
+        df_ace.index.values,
+        df_ace.bm.values,
+        "w-.",
+        lw=0.5 * lw,
+        ms=ms,
+        label=r"$|\vec{B}|$",
     )
-    (_,) = axs1.plot(df_ace.index.values, -df_ace.bm.values, "w-.", lw=lw, ms=ms)
+    (_,) = axs1.plot(df_ace.index.values, -df_ace.bm.values, "w-.", lw=0.5 * lw, ms=ms)
     axs1.axvspan(t1, t2, alpha=alpha, color=bar_color)
 
+    # Add a white line at y=0
+    axs1.axhline(0, color="w", lw=1, ls="--")
     if df_ace.bm.isnull().all():
         axs1.set_ylim([-1, 1])
     else:
@@ -225,7 +247,7 @@ def plot_figures_ace():
     axs1.set_ylabel(r"B [nT]", fontsize=20)
 
     # Add a text in the plot right outside the plot along the right edge in the middle
-    y_labels = [r"$|\vec{B}|$", r"$B_x$", r"$B_y$", r"$B_z$"]
+    y_labels = [r"$|\vec{B}|$", r"$B_x$", r"$B_y$", r"$\textbf{B}_z$"]
     y_label_colors = ["w", "r", "b", "g"]
     for i, txt in enumerate(y_labels):
         axs1.text(
