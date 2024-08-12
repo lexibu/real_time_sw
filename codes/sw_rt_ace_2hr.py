@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.dates import DateFormatter
+from pathlib import Path
 
 import magnetopause_calculator as mp_calc
 
@@ -498,7 +499,13 @@ def plot_figures_ace():
         rotation="vertical",
     )
 
-    fig_name = "/home/cephadrius/Dropbox/rt_sw/sw_ace_parameters_2hr.png"
+    # Properly define the folder and figure name
+    folder_name = "~/Dropbox/rt_sw/"
+    folder_name = Path(folder_name).expanduser()
+    Path(folder_name).mkdir(parents=True, exist_ok=True)
+
+    fig_name = "sw_ace_parameters_2hr.png"
+    fig_name = folder_name / fig_name
     plt.savefig(fig_name, bbox_inches="tight", pad_inches=0.05, format="png", dpi=300)
     plt.close("all")
     print(

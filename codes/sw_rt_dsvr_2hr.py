@@ -9,13 +9,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.dates import DateFormatter
-
+from pathlib import Path
 import magnetopause_calculator as mp_calc
 
 # Reload the module to get the latest changes
 importlib.reload(mp_calc)
 
-s = sched.scheduler(time.time, time.sleep)
+# s = sched.scheduler(time.time, time.sleep)
 
 # Set the dark mode for the plots
 plt.style.use("dark_background")
@@ -27,7 +27,7 @@ def plot_figures_dsco(sc=None):
     Download and upload data the DSCOVR database hosted at https://services.swpc.noaa.gov/text
     """
     # Set up the time to run the job
-    s.enter(60, 1, plot_figures_dsco, (sc,))
+    # s.enter(60, 1, plot_figures_dsco, (sc,))
 
     print(
         "Code execution for DSCOVR 2Hr started at (UTC):"
@@ -467,7 +467,13 @@ def plot_figures_dsco(sc=None):
         rotation="vertical",
     )
 
-    fig_name = "/home/cephadrius/Dropbox/rt_sw/sw_dscovr_parameters_2hr.png"
+    # Properly define the folder and figure name
+    folder_name = "~/Dropbox/rt_sw/"
+    folder_name = Path(folder_name).expanduser()
+    Path(folder_name).mkdir(parents=True, exist_ok=True)
+
+    fig_name = "sw_dscovr_parameters_2hr.png"
+    fig_name = folder_name / fig_name
     plt.savefig(fig_name, bbox_inches="tight", pad_inches=0.05, format="png", dpi=300)
     plt.close("all")
     print(
@@ -479,8 +485,8 @@ def plot_figures_dsco(sc=None):
     # return df
 
 
-s.enter(0, 1, plot_figures_dsco, (s,))
-s.run()
+# s.enter(0, 1, plot_figures_dsco, (s,))
+# s.run()
 
-# if __name__ == "__main__":
-#     df_dsco = plot_figures_dsco()
+if __name__ == "__main__":
+    df_dsco = plot_figures_dsco()

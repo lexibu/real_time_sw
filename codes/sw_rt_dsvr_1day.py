@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.dates import DateFormatter
+from pathlib import Path
 
 import magnetopause_calculator as mp_calc
 import misc_codes as m_codes
@@ -17,7 +18,7 @@ import misc_codes as m_codes
 importlib.reload(mp_calc)
 importlib.reload(m_codes)
 
-s = sched.scheduler(time.time, time.sleep)
+# s = sched.scheduler(time.time, time.sleep)
 
 # Set the dark mode for the plots
 plt.style.use("dark_background")
@@ -46,8 +47,8 @@ def plot_figures_dsco_1day(sc=None):
 
     """
     # Set up the time to run the job
-    s.enter(0, 1, m_codes.update_progress_bar, (sc, 0, 52))
-    s.enter(60, 1, plot_figures_dsco_1day, (sc,))
+    # s.enter(0, 1, m_codes.update_progress_bar, (sc, 0, 52))
+    # s.enter(60, 1, plot_figures_dsco_1day, (sc,))
 
     # start = time.time()
     print(
@@ -517,7 +518,14 @@ def plot_figures_dsco_1day(sc=None):
         fontsize=20,
         rotation="vertical",
     )
-    fig_name = "/home/cephadrius/Dropbox/rt_sw/rt_sw_dsco_parameters_1day.png"
+
+    # Properly define the folder and figure name
+    folder_name = "~/Dropbox/rt_sw/"
+    folder_name = Path(folder_name).expanduser()
+    Path(folder_name).mkdir(parents=True, exist_ok=True)
+
+    fig_name = "rt_sw_dsco_parameters_1day.png"
+    fig_name = folder_name / fig_name
     plt.savefig(fig_name, bbox_inches="tight", pad_inches=0.05, format="png", dpi=300)
 
     # axs1.set_ylim([-22, 22])
@@ -538,8 +546,8 @@ def plot_figures_dsco_1day(sc=None):
     return df_dsco_hc
 
 
-s.enter(0, 1, plot_figures_dsco_1day, (s,))
-s.run()
+# s.enter(0, 1, plot_figures_dsco_1day, (s,))
+# s.run()
 
-# if __name__ == "__main__":
-#     df_dsco_hc = plot_figures_dsco_1day()
+if __name__ == "__main__":
+    df_dsco_hc = plot_figures_dsco_1day()

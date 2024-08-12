@@ -1,3 +1,5 @@
+#!/home/vetinari/.cache/pypoetry/virtualenvs/codes-fO0b3aYA-py3.10/bin/python
+
 import sys
 
 
