@@ -420,14 +420,13 @@ def plot_figures_ace():
     val_min_lon = np.nanmin(df_ace.lon_gsm)
     val_max_lon = np.nanmax(df_ace.lon_gsm)
 
-
-    if df_dsco.lat_gsm.isnull().all():
+    if df_ace.lat_gsm.isnull().all():
         axs6.set_ylim([0, 1])
         axs6b.set_ylim([0, 1])
     else:
         if val_min_lat < 0:
             lat_min = 1.2 * val_min_lat
-        else
+        else:
             lat_min = 0.8 * val_min_lat
         if val_max_lat < 0:
             lat_max = 0.8 * val_max_lat
