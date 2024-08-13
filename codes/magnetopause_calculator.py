@@ -25,7 +25,8 @@ def mp_r_shue(df):
         df["y_gsm"] = 0
     if "z_gsm" not in df.columns:
         df["z_gsm"] = 0
-    theta = np.arctan2(np.sqrt(df["z_gsm"] ** 2 + df["y_gsm"] ** 2), df["x_gsm"])
+    # theta = np.arctan2(np.sqrt(df["z_gsm"] ** 2 + df["y_gsm"] ** 2), df["x_gsm"])
+    theta = [0] * len(df)
     # Check if all theta values are nan, if they are then set them to 0
     if np.isnan(theta).all():
         theta = np.zeros(len(theta))

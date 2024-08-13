@@ -393,6 +393,7 @@ def plot_figures_ace_1day(sc=None):
     axs6.plot(
         df_ace_hc.index.values, df_ace_hc.lat_gsm.values, color="w", lw=1, alpha=alpha
     )
+    axs6.set_ylabel(r"Lat [deg]", fontsize=ylabelsize, color="w")
     axs6b = axs6.twinx()
     axs6b.plot(
         df_ace.index.values, df_ace.lon_gsm.values, "c-", lw=lw, ms=ms, label=r"Lon"
@@ -400,45 +401,36 @@ def plot_figures_ace_1day(sc=None):
     axs6b.plot(
         df_ace_hc.index.values, df_ace_hc.lon_gsm.values, color="c", lw=1, alpha=alpha
     )
+    axs6b.set_ylabel(r"Lon [deg]", fontsize=ylabelsize, color="c")
     axs6.axvspan(t1, t2, alpha=alpha, color=bar_color)
 
-    # Get the sign of np.nanmax(df_ace.lat_gsm)
-    sign_val_max_lat = np.sign(np.nanmax(df_ace.lat_gsm))
-    # Get the sign of np.nanmin(df_ace.lat_gsm)
-    sign_val_min_lat = np.sign(np.nanmin(df_ace.lat_gsm))
-    # Get the sign of np.nanmax(df_ace.lon_gsm)
-    sign_val_max_lon = np.sign(np.nanmax(df_ace.lon_gsm))
-    # Get the sign of np.nanmin(df_ace.lon_gsm)
-    sign_val_min_lon = np.sign(np.nanmin(df_ace.lon_gsm))
+    val_min_lat = np.nanmin(df_ace.lat_gsm)
+    val_max_lat = np.nanmax(df_ace.lat_gsm)
+    val_min_lon = np.nanmin(df_ace.lon_gsm)
+    val_max_lon = np.nanmax(df_ace.lon_gsm)
 
     if df_ace.lat_gsm.isnull().all():
         axs6.set_ylim([-1, 1])
         axs6b.set_ylim([-1, 1])
     else:
-        axs6.set_ylim(
-            0.90 * abs(np.nanmin(df_ace.lat_gsm)) * sign_val_min_lat,
-            1.10 * abs(np.nanmax(df_ace.lat_gsm)) * sign_val_max_lat,
-        )
-        axs6b.set_ylim(
-            0.90 * abs(np.nanmin(df_ace.lon_gsm)) * sign_val_min_lon,
-            1.10 * abs(np.nanmax(df_ace.lon_gsm)) * sign_val_max_lon,
-        )
-
-    # Add a text in the plot right outside the plot along the left edge in the middle for the y-axis
-    # for latitude and longitude
-    y_labels = [r"Lat", r"Lon"]
-    y_label_colors = ["w", "c"]
-    for i, txt in enumerate(y_labels):
-        axs6.text(
-            -0.05,
-            -0.05 + 0.2 * (i + 1),
-            txt,
-            ha="right",
-            va="center",
-            transform=axs6.transAxes,
-            fontsize=20,
-            color=y_label_colors[i],
-        )
+        if val_min_lat < 0:
+            lat_min = 1.2 * val_min_lat
+        else:
+            lat_min = 0.8 * val_min_lat
+        if val_max_lat < 0:
+            lat_max = 0.8 * val_max_lat
+        else:
+            lat_max = 1.2 * val_max_lat
+        if val_min_lon < 0:
+            lon_min = 1.2 * val_min_lon
+        else:
+            lon_min = 0.8 * val_min_lon
+        if val_max_lon < 0:
+            lon_max = 0.8 * val_max_lon
+        else:
+            lon_max = 1.2 * val_max_lon
+        axs6.set_ylim(lat_min, lat_max)
+        axs6b.set_ylim(lon_min, lon_max)
 
     axs6.set_xlabel(
         f"Time on {df_ace.index.date[0]} (UTC) [HH:MM]", fontsize=xlabelsize
@@ -563,8 +555,10 @@ def plot_figures_ace_1day(sc=None):
         length=ticklength,
         labelsize=ticklabelsize,
         labelrotation=0,
+        color="c",
+        colors="c",
     )
-    axs6.yaxis.set_label_position("right")
+    axs6.yaxis.set_label_position("left")
 
     date_form = DateFormatter("%H:%M")
     axs6.xaxis.set_major_formatter(date_form)
