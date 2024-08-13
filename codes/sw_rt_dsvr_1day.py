@@ -203,14 +203,14 @@ def plot_figures_dsco_1day(sc=None):
     t2 = df_dsco.index.max() - datetime.timedelta(minutes=40)
 
     fig = plt.figure(
-        num=None, figsize=(10, 13), dpi=200, facecolor="w", edgecolor="gray"
+        num=None, figsize=(12, 15), dpi=200, facecolor="w", edgecolor="gray"
     )
     fig.subplots_adjust(
         left=0.01, right=0.95, top=0.95, bottom=0.01, wspace=0.02, hspace=0.0
     )
 
     # Magnetic field plot
-    gs = fig.add_gridspec(6, 1)
+    gs = fig.add_gridspec(7, 1)
     axs1 = fig.add_subplot(gs[0, 0])
     axs1.plot(
         df_dsco.index.values, df_dsco.bx_gsm.values, "r-", lw=lw, ms=ms, label=r"$B_x$"
@@ -327,7 +327,7 @@ def plot_figures_dsco_1day(sc=None):
 
     # Cusp latitude plot
 
-    axs5 = fig.add_subplot(gs[4:, 0], sharex=axs1)
+    axs5 = fig.add_subplot(gs[4:6, 0], sharex=axs1)
 
     min_rmp = np.nanmin(
         [
@@ -408,10 +408,66 @@ def plot_figures_dsco_1day(sc=None):
             color=y_label_colors[i],
         )
 
-    axs5.set_xlabel(
+    axs5.set_ylabel(r"Magnetopause Distance [$R_{\oplus}$]", fontsize=ylabelsize)
+
+    # Add the latitude and longitude plots
+    axs6 = fig.add_subplot(gs[6:, 0], sharex=axs1)
+
+    axs6.plot(
+        df_dsco.index.values, df_dsco.lat_gsm.values, "w-", lw=lw, ms=ms, label=r"Lat"
+    )
+    axs6.plot(
+        df_dsco_hc.index.values, df_dsco_hc.lat_gsm.values, color="w", lw=1, alpha=alpha
+    )
+    axs6b = axs6.twinx()
+    axs6b.plot(
+        df_dsco.index.values, df_dsco.lon_gsm.values, "c-", lw=lw, ms=ms, label=r"Lon"
+    )
+    axs6b.plot(
+        df_dsco_hc.index.values, df_dsco_hc.lon_gsm.values, color="c", lw=1, alpha=alpha
+    )
+    axs6.axvspan(t1, t2, alpha=alpha, color=bar_color)
+
+    # Get the sign of np.nanmax(df_dsco.lat_gsm)
+    sign_val_max_lat = np.sign(np.nanmax(df_dsco.lat_gsm))
+    # Get the sign of np.nanmin(df_dsco.lat_gsm)
+    sign_val_min_lat = np.sign(np.nanmin(df_dsco.lat_gsm))
+    # Get the sign of np.nanmax(df_dsco.lon_gsm)
+    sign_val_max_lon = np.sign(np.nanmax(df_dsco.lon_gsm))
+    # Get the sign of np.nanmin(df_dsco.lon_gsm)
+    sign_val_min_lon = np.sign(np.nanmin(df_dsco.lon_gsm))
+
+    if df_dsco.lat_gsm.isnull().all():
+        axs6.set_ylim([-1, 1])
+        axs6b.set_ylim([-1, 1])
+    else:
+        axs6.set_ylim(
+            0.90 * abs(np.nanmin(df_dsco.lat_gsm)) * sign_val_min_lat,
+            1.10 * abs(np.nanmax(df_dsco.lat_gsm)) * sign_val_max_lat,
+        )
+        axs6b.set_ylim(
+            0.90 * abs(np.nanmin(df_dsco.lon_gsm)) * sign_val_min_lon,
+            1.10 * abs(np.nanmax(df_dsco.lon_gsm)) * sign_val_max_lon,
+        )
+
+    # Add a text in the plot right outside the plot along the left edge in the middle for the y-axis
+    # for latitude and longitude
+    y_labels = [r"Lat", r"Lon"]
+    y_label_colors = ["w", "c"]
+    for i, txt in enumerate(y_labels):
+        axs6.text(
+            -0.05,
+            -0.05 + 0.2 * (i + 1),
+            txt,
+            ha="right",
+            va="center",
+            transform=axs6.transAxes,
+            fontsize=20,
+            color=y_label_colors[i],
+        )
+    axs6.set_xlabel(
         f"Time on {df_dsco.index.date[0]} (UTC) [HH:MM]", fontsize=xlabelsize
     )
-    axs5.set_ylabel(r"Magnetopause Distance [$R_{\oplus}$]", fontsize=ylabelsize)
 
     # Set axis tick-parameters
     axs1.tick_params(
@@ -501,8 +557,42 @@ def plot_figures_dsco_1day(sc=None):
         labelrotation=0,
     )
     axs5.yaxis.set_label_position("left")
+
+    axs6.tick_params(
+        which="both",
+        direction="in",
+        left=True,
+        labelleft=True,
+        top=True,
+        labeltop=False,
+        right=True,
+        labelright=False,
+        bottom=True,
+        labelbottom=True,
+        width=tickwidth,
+        length=ticklength,
+        labelsize=ticklabelsize,
+        labelrotation=0,
+    )
+    axs6b.tick_params(
+        which="both",
+        direction="in",
+        left=True,
+        labelleft=False,
+        top=True,
+        labeltop=False,
+        right=True,
+        labelright=True,
+        bottom=True,
+        labelbottom=False,
+        width=tickwidth,
+        length=ticklength,
+        labelsize=ticklabelsize,
+        labelrotation=0,
+    )
+    axs6.yaxis.set_label_position("right")
     date_form = DateFormatter("%H:%M")
-    axs5.xaxis.set_major_formatter(date_form)
+    axs6.xaxis.set_major_formatter(date_form)
 
     figure_time = (
         f"{datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}"

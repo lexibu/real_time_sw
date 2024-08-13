@@ -514,7 +514,7 @@ def plot_figures_ace():
     )
 
     # print(f'It took {round(time.time() - start, 3)} seconds')
-    # return df
+    return df_ace
 
 
 # s.enter(0, 1, plot_figures_ace, (s,))
