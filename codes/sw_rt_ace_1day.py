@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
-import sched
 import time
-import sys
 import importlib
 import geopack.geopack as gp
 import matplotlib.pyplot as plt
