@@ -33,6 +33,7 @@ if __name__ == "__main__":
 
     initial_dir = "../data/frames"
     final_dir = "~/Dropbox/rt_sw/"
+    final_dir = os.path.expanduser(final_dir)
     current_file = rename_file(initial_dir, final_dir, current_time)
     # Get the right frame corresponding to the hours elapsed from the frames_folder
     hours_elapsed = get_hour(current_time)
