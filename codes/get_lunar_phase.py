@@ -30,7 +30,7 @@ def rename_file(initial_dir=None, final_dir=None, current_time=None):
 if __name__ == "__main__":
     current_time = datetime.datetime.now(datetime.timezone.utc)
 
-    initial_dir = "../data/frames"
+    initial_dir = "/home/cephadrius/Desktop/git/real_time_sw/data/frames"
     final_dir = "~/Dropbox/rt_sw/"
     final_dir = os.path.expanduser(final_dir)
     current_file = rename_file(initial_dir, final_dir, current_time)
