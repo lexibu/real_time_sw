@@ -35,6 +35,8 @@ def mp_r_shue(df):
     )
     alpha = (0.58 - 0.007 * df["bz_gsm"]) * (1 + 0.024 * np.log(df["p_dyn"]))
     r = ro * (2 / (1 + np.cos(theta))) ** alpha
+    # If a value of r is less than 0 or nan, or greater than 100, set it to 10.22
+    r[(r < 0) | (r > 100) | np.isnan(r)] = 10.22
     df["r_shue"] = r
     return df
 
@@ -72,16 +74,21 @@ def mp_r_yang(df):
         a7 = a7 * np.exp(-1 * pdyn / 30)
         alpha = (a5 + a6 * bzp) * (1 + a7 * pdyn)
 
-        if bzp >= 0:
-            ro = a1 * pdyn ** (-1.0 / a4)
-        elif -8 <= bzp < 0:
-            ro = (a1 + a2 * bzp) * pdyn ** (-1.0 / a4)
+        if pdyn <= 0 or np.isnan(pdyn):
+            ro = 10.22
         else:
-            ro = (a1 + a2 * bzp) * pdyn ** (-1.0 / a4)
+            if bzp >= 0:
+                ro = a1 * pdyn ** (-1.0 / a4)
+            elif -8 <= bzp < 0:
+                ro = (a1 + a2 * bzp) * pdyn ** (-1.0 / a4)
+            else:
+                ro = (a1 + a2 * bzp) * pdyn ** (-1.0 / a4)
 
         theta = 2 * np.pi * 0 / 360
         r = ro * (2 / (1 + np.cos(theta))) ** alpha
-
+        # If a value of r is less than 0 or nan, or greater than 100, set it to 10.22
+        if r < 0 or r > 100 or np.isnan(r):
+            r = 10.22
         df.loc[_, "r_yang"] = r
     return df
 
@@ -163,5 +170,7 @@ def mp_r_lin(df):
     )
     r = r0 * f + cn * np.exp(dn * psi_n**en) + cs * np.exp(ds * psi_s**es)
 
+    # If a value of r is less than 0 or nan, or greater than 100, set it to 10.22
+    r[(r < 0) | (r > 100) | np.isnan(r)] = 10.22
     df["r_lin"] = r
     return df

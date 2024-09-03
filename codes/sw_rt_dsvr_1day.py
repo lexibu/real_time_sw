@@ -277,7 +277,7 @@ def plot_figures_dsco_1day(sc=None):
 
     # lgnd2 = axs2.legend(fontsize=labelsize, loc="best", ncol=ncols)
     # lgnd2.legend_handles[0]._sizes = [labelsize]
-    axs2.set_ylabel(r"$n_p [1/\rm{cm^{3}}]$", fontsize=ylabelsize, color="r")
+    axs2.set_ylabel(r"$n_p [1/\rm{cm^{3}}]$", fontsize=ylabelsize, color="bisque")
 
     # Speed plot
     axs3 = fig.add_subplot(gs[2, 0], sharex=axs1)

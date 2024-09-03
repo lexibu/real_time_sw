@@ -8,5 +8,3 @@ python /home/cephadrius/Desktop/git/real_time_sw/codes/sw_rt_ace_1day.py
 python /home/cephadrius/Desktop/git/real_time_sw/codes/sw_rt_ace_2hr.py
 python /home/cephadrius/Desktop/git/real_time_sw/codes/sw_rt_dsvr_1day.py
 python /home/cephadrius/Desktop/git/real_time_sw/codes/sw_rt_dsvr_2hr.py
-python /home/cephadrius/Desktop/git/real_time_sw/codes/get_lunar_phase.py
-

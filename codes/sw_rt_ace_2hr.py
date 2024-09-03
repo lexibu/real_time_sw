@@ -527,7 +527,7 @@ def plot_figures_ace():
         right=True,
         labelright=False,
         bottom=True,
-        labelbottom=True,
+        labelbottom=False,
         width=tickwidth,
         length=ticklength,
         labelsize=ticklabelsize,
