@@ -322,9 +322,28 @@ def plot_figures_dsco_1day(sc=None):
         r"~~~~Flux\\ $10^8 [\rm{1/(sec\, cm^2)}]$", fontsize=ylabelsize, color="w"
     )
 
-    # Cusp latitude plot
+    # Add the dynamic pressure plot
+    axs5 = fig.add_subplot(gs[4:5, 0], sharex=axs1)
+    axs5.plot(
+        df_dsco.index.values,
+        df_dsco.p_dyn.values,
+        "m-",
+        lw=lw,
+        ms=ms,
+        label=r"Dynamic Pressure",
+    )
+    axs5.axvspan(t1, t2, alpha=alpha, color=bar_color)
 
-    axs5 = fig.add_subplot(gs[4:6, 0], sharex=axs1)
+    if df_dsco.p_dyn.isnull().all():
+        axs5.set_ylim([0, 1])
+    else:
+        axs5.set_ylim(0.9 * np.nanmin(df_dsco.p_dyn), 1.1 * np.nanmax(df_dsco.p_dyn))
+
+    axs5.set_yscale("linear")
+    axs5.set_ylabel(r"Dynamic Pressure [nPa]", fontsize=ylabelsize, color="m")
+
+    # Cusp latitude plot
+    axs6 = fig.add_subplot(gs[5:7, 0], sharex=axs1)
 
     min_rmp = np.nanmin(
         [
@@ -341,10 +360,7 @@ def plot_figures_dsco_1day(sc=None):
         ]
     )
 
-    axs5.plot(
-        df_dsco_hc.index.values, df_dsco_hc.r_shue.values, color="w", lw=1, alpha=alpha
-    )
-    axs5.plot(
+    axs6.plot(
         df_dsco.index.values,
         df_dsco.r_shue.values,
         "w-",
@@ -353,10 +369,7 @@ def plot_figures_dsco_1day(sc=None):
         label=r"Shue",
     )
 
-    axs5.plot(
-        df_dsco_hc.index.values, df_dsco_hc.r_yang.values, color="b", lw=1, alpha=alpha
-    )
-    axs5.plot(
+    axs6.plot(
         df_dsco.index.values,
         df_dsco.r_yang.values,
         "b-",
@@ -365,10 +378,7 @@ def plot_figures_dsco_1day(sc=None):
         label=r"Yang",
     )
 
-    axs5.plot(
-        df_dsco_hc.index.values, df_dsco_hc.r_lin.values, color="g", lw=1, alpha=alpha
-    )
-    axs5.plot(
+    axs6.plot(
         df_dsco.index.values,
         df_dsco.r_lin.values,
         "g-",
@@ -376,91 +386,37 @@ def plot_figures_dsco_1day(sc=None):
         ms=ms,
         label=r"Lin",
     )
-    axs5.axvspan(t1, t2, alpha=alpha, color=bar_color)
+    axs6.axvspan(t1, t2, alpha=alpha, color=bar_color)
 
     if (
         df_dsco.r_shue.isnull().all()
         and df_dsco.r_yang.isnull().all()
         and df_dsco.r_lin.isnull().all()
     ):
-        axs5.set_ylim([-1, 1])
+        axs6.set_ylim([-1, 1])
     else:
-        axs5.set_ylim(0.97 * min_rmp, 1.03 * max_rmp)
-
-    # lgnd5 = axs5.legend(fontsize=labelsize, loc="best", ncol=4)
-    # lgnd5.legend_handles[0]._sizes = [labelsize]
+        axs6.set_ylim(0.97 * min_rmp, 1.03 * max_rmp)
 
     # Add a text in the plot right outside the plot along the right edge in the middle for the y-axis
     y_labels = [r"Lin", r"Yang", r"Shue"]
     y_label_colors = ["g", "b", "w"]
     for i, txt in enumerate(y_labels):
-        axs5.text(
-            1.01,
+        axs6.text(
+            -0.03,
             -0.05 + 0.10 * (i + 1),
             txt,
-            ha="left",
+            ha="right",
             va="center",
-            transform=axs5.transAxes,
+            transform=axs6.transAxes,
             fontsize=20,
             color=y_label_colors[i],
         )
-
-    axs5.set_ylabel(r"Magnetopause Distance [$R_{\oplus}$]", fontsize=ylabelsize)
-
-    # Add the latitude and longitude plots
-    axs6 = fig.add_subplot(gs[6:, 0], sharex=axs1)
-
-    axs6.plot(
-        df_dsco.index.values, df_dsco.lat_gsm.values, "w-", lw=lw, ms=ms, label=r"Lat"
-    )
-    axs6.plot(
-        df_dsco_hc.index.values, df_dsco_hc.lat_gsm.values, color="w", lw=1, alpha=alpha
-    )
-    axs6.set_ylabel(r"Lat [deg]", fontsize=ylabelsize, color="w")
-    axs6b = axs6.twinx()
-    axs6b.plot(
-        df_dsco.index.values, df_dsco.lon_gsm.values, "c-", lw=lw, ms=ms, label=r"Lon"
-    )
-    axs6b.plot(
-        df_dsco_hc.index.values, df_dsco_hc.lon_gsm.values, color="c", lw=1, alpha=alpha
-    )
-    axs6b.set_ylabel(r"Lon [deg]", fontsize=ylabelsize, color="c")
-
-    axs6.axvspan(t1, t2, alpha=alpha, color=bar_color)
-
-    val_max_lat = np.nanmax(df_dsco.lat_gsm)
-    val_min_lat = np.nanmin(df_dsco.lat_gsm)
-    val_max_lon = np.nanmax(df_dsco.lon_gsm)
-    val_min_lon = np.nanmin(df_dsco.lon_gsm)
-
-    if df_dsco.lat_gsm.isnull().all():
-        axs6.set_ylim([-1, 1])
-        axs6b.set_ylim([-1, 1])
-    else:
-        if val_min_lat < 0:
-            lat_min = 1.2 * val_min_lat
-        else:
-            lat_min = 0.8 * val_min_lat
-        if val_max_lat < 0:
-            lat_max = 0.8 * val_max_lat
-        else:
-            lat_max = 1.2 * val_max_lat
-        if val_min_lon < 0:
-            lon_min = 1.2 * val_min_lon
-        else:
-            lon_min = 0.8 * val_min_lon
-        if val_max_lon < 0:
-            lon_max = 0.8 * val_max_lon
-        else:
-            lon_max = 1.2 * val_max_lon
-        axs6.set_ylim(lat_min, lat_max)
-        axs6b.set_ylim(lon_min, lon_max)
+    axs6.set_ylabel(r"Magnetopause Distance [$R_{\oplus}$]", fontsize=ylabelsize)
 
     axs6.set_xlabel(
         f"Time on {df_dsco.index.date[0]} (UTC) [HH:MM]", fontsize=xlabelsize
     )
-
-    # Set axis tick-parameters
+    # Set axis ticw-parameters
     axs1.tick_params(
         which="both",
         direction="in",
@@ -541,7 +497,7 @@ def plot_figures_dsco_1day(sc=None):
         right=True,
         labelright=False,
         bottom=True,
-        labelbottom=True,
+        labelbottom=False,
         width=tickwidth,
         length=ticklength,
         labelsize=ticklabelsize,
@@ -556,42 +512,19 @@ def plot_figures_dsco_1day(sc=None):
         labelleft=True,
         top=True,
         labeltop=False,
-        right=False,
-        labelright=False,
-        bottom=True,
-        labelbottom=True,
-        width=tickwidth,
-        length=ticklength,
-        labelsize=ticklabelsize,
-        labelrotation=0,
-        color="w",
-    )
-    # Change the spine color to white, on the left side
-    axs6.spines["left"].set_color("w")
-    axs6b.tick_params(
-        which="both",
-        direction="in",
-        left=False,
-        labelleft=False,
-        top=True,
-        labeltop=False,
         right=True,
-        labelright=True,
+        labelright=False,
         bottom=True,
         labelbottom=False,
         width=tickwidth,
         length=ticklength,
         labelsize=ticklabelsize,
         labelrotation=0,
-        color="c",
-        colors="c",
+        color="w",
+        colors="w",
     )
-    # Set tick label color to cyan
-    # axs6b.set_yticklabels(axs6b.get_yticks(), color="c")
-    # Change the spine color to cyan, on the right side
-    axs6b.spines["right"].set_color("c")
-    axs6.yaxis.set_label_position("left")
-    # Ch
+    axs6.yaxis.set_label_position("right")
+
     date_form = DateFormatter("%H:%M")
     axs6.xaxis.set_major_formatter(date_form)
 
