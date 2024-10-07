@@ -332,6 +332,9 @@ def plot_figures_dsco_1day(sc=None):
         ms=ms,
         label=r"Dynamic Pressure",
     )
+    axs5.plot(
+        df_dsco_hc.index.values, df_dsco_hc.p_dyn.values, color="m", lw=1, alpha=alpha
+    )
     axs5.axvspan(t1, t2, alpha=alpha, color=bar_color)
 
     if df_dsco.p_dyn.isnull().all():

@@ -300,19 +300,22 @@ def plot_figures_ace_1day(sc=None):
     # Add the dynamic pressure plot
     axs5 = fig.add_subplot(gs[4:5, 0], sharex=axs1)
     axs5.plot(
-        df_dsco.index.values,
-        df_dsco.p_dyn.values,
+        df_ace.index.values,
+        df_ace.p_dyn.values,
         "m-",
         lw=lw,
         ms=ms,
         label=r"Dynamic Pressure",
     )
+    axs5.plot(
+        df_ace_hc.index.values, df_ace_hc.p_dyn.values, color="m", lw=1, alpha=alpha
+    )
     axs5.axvspan(t1, t2, alpha=alpha, color=bar_color)
 
-    if df_dsco.p_dyn.isnull().all():
+    if df_ace.p_dyn.isnull().all():
         axs5.set_ylim([0, 1])
     else:
-        axs5.set_ylim(0.9 * np.nanmin(df_dsco.p_dyn), 1.1 * np.nanmax(df_dsco.p_dyn))
+        axs5.set_ylim(0.9 * np.nanmin(df_ace.p_dyn), 1.1 * np.nanmax(df_ace.p_dyn))
 
     axs5.set_yscale("linear")
     axs5.set_ylabel(r"Dynamic Pressure [nPa]", fontsize=ylabelsize, color="m")
@@ -322,22 +325,22 @@ def plot_figures_ace_1day(sc=None):
 
     min_rmp = np.nanmin(
         [
-            np.nanmin(df_dsco.r_shue),
-            np.nanmin(df_dsco.r_yang),
-            np.nanmin(df_dsco.r_lin),
+            np.nanmin(df_ace.r_shue),
+            np.nanmin(df_ace.r_yang),
+            np.nanmin(df_ace.r_lin),
         ]
     )
     max_rmp = np.nanmax(
         [
-            np.nanmax(df_dsco.r_shue),
-            np.nanmax(df_dsco.r_yang),
-            np.nanmax(df_dsco.r_lin),
+            np.nanmax(df_ace.r_shue),
+            np.nanmax(df_ace.r_yang),
+            np.nanmax(df_ace.r_lin),
         ]
     )
 
     axs6.plot(
-        df_dsco.index.values,
-        df_dsco.r_shue.values,
+        df_ace.index.values,
+        df_ace.r_shue.values,
         "w-",
         lw=lw,
         ms=ms,
@@ -345,8 +348,8 @@ def plot_figures_ace_1day(sc=None):
     )
 
     axs6.plot(
-        df_dsco.index.values,
-        df_dsco.r_yang.values,
+        df_ace.index.values,
+        df_ace.r_yang.values,
         "b-",
         lw=lw,
         ms=ms,
@@ -354,8 +357,8 @@ def plot_figures_ace_1day(sc=None):
     )
 
     axs6.plot(
-        df_dsco.index.values,
-        df_dsco.r_lin.values,
+        df_ace.index.values,
+        df_ace.r_lin.values,
         "g-",
         lw=lw,
         ms=ms,
@@ -364,9 +367,9 @@ def plot_figures_ace_1day(sc=None):
     axs6.axvspan(t1, t2, alpha=alpha, color=bar_color)
 
     if (
-        df_dsco.r_shue.isnull().all()
-        and df_dsco.r_yang.isnull().all()
-        and df_dsco.r_lin.isnull().all()
+        df_ace.r_shue.isnull().all()
+        and df_ace.r_yang.isnull().all()
+        and df_ace.r_lin.isnull().all()
     ):
         axs6.set_ylim([-1, 1])
     else:
@@ -389,7 +392,7 @@ def plot_figures_ace_1day(sc=None):
     axs6.set_ylabel(r"Magnetopause Distance [$R_{\oplus}$]", fontsize=ylabelsize)
 
     axs6.set_xlabel(
-        f"Time on {df_dsco.index.date[0]} (UTC) [HH:MM]", fontsize=xlabelsize
+        f"Time on {df_ace.index.date[0]} (UTC) [HH:MM]", fontsize=xlabelsize
     )
     # Set axis ticw-parameters
     axs1.tick_params(
