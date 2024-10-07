@@ -346,6 +346,9 @@ def plot_figures_ace_1day(sc=None):
         ms=ms,
         label=r"Shue",
     )
+    axs6.plot(
+        df_ace_hc.index.values, df_ace_hc.r_shue.values, color="w", lw=1, alpha=alpha
+    )
 
     axs6.plot(
         df_ace.index.values,
@@ -355,6 +358,9 @@ def plot_figures_ace_1day(sc=None):
         ms=ms,
         label=r"Yang",
     )
+    axs6.plot(
+        df_ace_hc.index.values, df_ace_hc.r_yang.values, color="b", lw=1, alpha=alpha
+    )
 
     axs6.plot(
         df_ace.index.values,
@@ -363,6 +369,9 @@ def plot_figures_ace_1day(sc=None):
         lw=lw,
         ms=ms,
         label=r"Lin",
+    )
+    axs6.plot(
+        df_ace_hc.index.values, df_ace_hc.r_lin.values, color="g", lw=1, alpha=alpha
     )
     axs6.axvspan(t1, t2, alpha=alpha, color=bar_color)
 
