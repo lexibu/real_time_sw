@@ -243,6 +243,22 @@ def plot_figures_ace():
     else:
         axs1.set_ylim(-1.1 * np.nanmax(df_ace.bm), 1.1 * np.nanmax(df_ace.bm))
 
+    # In a textbox, add the average value of the magnetic field in the plot at the top
+    # right corner
+    avg_bm = np.nanmean(df_ace.bm)
+
+    axs1.text(
+        0.98,
+        0.95,
+        r"$\langle |\vec{B}| \rangle = %.2f$ nT" % avg_bm,
+        horizontalalignment="right",
+        verticalalignment="top",
+        transform=axs1.transAxes,
+        fontsize=20,
+        color="w",
+        bbox=dict(facecolor="gray", alpha=0.5),
+    )
+
     axs1.set_xlim(df_ace.index.min(), df_ace.index.max())
     axs1.set_ylabel(r"B [nT]", fontsize=20)
 
@@ -282,6 +298,22 @@ def plot_figures_ace():
     else:
         axs2.set_ylim(0.9 * np.nanmin(df_ace.np), 1.1 * np.nanmax(df_ace.np))
 
+    # In a textbox, add the average value of the density in the plot at the top
+    # right corner
+    avg_np = np.nanmean(df_ace.np)
+
+    axs2.text(
+        0.98,
+        0.95,
+        r"$\langle n_p \rangle = %.2f$" % avg_np,
+        horizontalalignment="right",
+        verticalalignment="top",
+        transform=axs2.transAxes,
+        fontsize=20,
+        color="bisque",
+        bbox=dict(facecolor="gray", alpha=0.5),
+    )
+
     axs2.set_ylabel(r"$n_p [1/\rm{cm^{3}}]$", fontsize=ylabelsize, color="bisque")
 
     # Speed plot
@@ -295,6 +327,22 @@ def plot_figures_ace():
         axs3.set_ylim([0, 1])
     else:
         axs3.set_ylim(0.9 * np.nanmin(df_ace.vp), 1.1 * np.nanmax(df_ace.vp))
+
+    # In a textbox, add the average value of the speed in the plot at the top
+    # right corner
+    avg_vp = np.nanmean(df_ace.vp)
+
+    axs3.text(
+        0.98,
+        0.95,
+        r"$\langle V_p \rangle = %.2f$" % avg_vp,
+        horizontalalignment="right",
+        verticalalignment="top",
+        transform=axs3.transAxes,
+        fontsize=20,
+        color="c",
+        bbox=dict(facecolor="gray", alpha=0.5),
+    )
 
     axs3.set_ylabel(r"$V_p [\rm{km/sec}]$", fontsize=ylabelsize, color="c")
 
@@ -312,6 +360,22 @@ def plot_figures_ace():
             np.nanmin([0.9 * np.nanmin(df_ace.flux), 2.4]),
             np.nanmax([1.1 * np.nanmax(df_ace.flux), 3.3]),
         )
+
+    # In a textbox, add the average value of the flux in the plot at the top
+    # right corner
+    avg_flux = np.nanmean(df_ace.flux)
+
+    axs4.text(
+        0.98,
+        0.95,
+        r"$\langle \Phi \rangle = %.2f$" % avg_flux,
+        horizontalalignment="right",
+        verticalalignment="top",
+        transform=axs4.transAxes,
+        fontsize=20,
+        color="w",
+        bbox=dict(facecolor="gray", alpha=0.5),
+    )
 
     axs4.set_ylabel(
         r"~~~~Flux\\ $10^8 [\rm{1/(sec\, cm^2)}]$", fontsize=ylabelsize, color="w"
@@ -333,6 +397,22 @@ def plot_figures_ace():
         axs5.set_ylim([0, 1])
     else:
         axs5.set_ylim(0.9 * np.nanmin(df_ace.p_dyn), 1.1 * np.nanmax(df_ace.p_dyn))
+
+    # In a textbox, add the average value of the dynamic pressure in the plot at the top
+    # right corner
+    avg_p_dyn = np.nanmean(df_ace.p_dyn)
+
+    axs5.text(
+        0.98,
+        0.95,
+        r"$\langle P_{\rm{dyn}} \rangle = %.2f$" % avg_p_dyn,
+        horizontalalignment="right",
+        verticalalignment="top",
+        transform=axs5.transAxes,
+        fontsize=20,
+        color="m",
+        bbox=dict(facecolor="gray", alpha=0.5),
+    )
 
     axs5.set_yscale("linear")
     axs5.set_ylabel(r"Dynamic Pressure [nPa]", fontsize=ylabelsize, color="m")
@@ -391,6 +471,26 @@ def plot_figures_ace():
         axs6.set_ylim([-1, 1])
     else:
         axs6.set_ylim(0.97 * min_rmp, 1.03 * max_rmp)
+
+    # In a textbox, add the average value of the magnetopause distance in the plot at the top
+    # right corner
+    avg_rmp_shue = np.nanmean(df_ace.r_shue)
+    avg_rmp_yang = np.nanmean(df_ace.r_yang)
+    avg_rmp_lin = np.nanmean(df_ace.r_lin)
+
+    axs6.text(
+        0.98,
+        0.95,
+        r"$\langle R_{\rm{s}} \rangle = %.2f$" % avg_rmp_shue + "\n"
+        r"$\langle R_{\rm{y}} \rangle = %.2f$" % avg_rmp_yang + "\n"
+        r"$\langle R_{\rm{l}} \rangle = %.2f$" % avg_rmp_lin,
+        horizontalalignment="right",
+        verticalalignment="top",
+        transform=axs6.transAxes,
+        fontsize=20,
+        color="w",
+        bbox=dict(facecolor="gray", alpha=0.5),
+    )
 
     # Add a text in the plot right outside the plot along the right edge in the middle for the y-axis
     y_labels = [r"Lin", r"Yang", r"Shue"]
