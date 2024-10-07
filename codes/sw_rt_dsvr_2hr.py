@@ -512,7 +512,7 @@ def plot_figures_dsco(sc=None):
     folder_name = Path(folder_name).expanduser()
     Path(folder_name).mkdir(parents=True, exist_ok=True)
 
-    fig_name = "test_sw_dscovr_parameters_2hr.png"
+    fig_name = "sw_dscovr_parameters_2hr.png"
     fig_name = folder_name / fig_name
     plt.savefig(fig_name, bbox_inches="tight", pad_inches=0.05, format="png", dpi=300)
     plt.close("all")
