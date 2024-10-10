@@ -181,8 +181,8 @@ def plot_figures_dsco_1day(sc=None):
     # cticklength = 5
     # mcticklength = 4
     # labelrotation = 0
-    xlabelsize = 20
-    ylabelsize = 20
+    xlabelsize = 24
+    ylabelsize = 24
     alpha = 0.3
     bar_color = "turquoise"
 
@@ -245,7 +245,7 @@ def plot_figures_dsco_1day(sc=None):
         horizontalalignment="right",
         verticalalignment="top",
         transform=axs1.transAxes,
-        fontsize=20,
+        fontsize=24,
         color="w",
         bbox=dict(facecolor="gray", alpha=0.5),
     )
@@ -302,8 +302,8 @@ def plot_figures_dsco_1day(sc=None):
         horizontalalignment="right",
         verticalalignment="top",
         transform=axs2.transAxes,
-        fontsize=20,
-        color="bisque",
+        fontsize=24,
+        color="w",
         bbox=dict(facecolor="gray", alpha=0.5),
     )
 
@@ -335,12 +335,12 @@ def plot_figures_dsco_1day(sc=None):
         horizontalalignment="right",
         verticalalignment="top",
         transform=axs3.transAxes,
-        fontsize=20,
-        color="c",
+        fontsize=24,
+        color="w",
         bbox=dict(facecolor="gray", alpha=0.5),
     )
 
-    axs3.set_ylabel(r"$V_p [\rm{km/sec}]$", fontsize=ylabelsize, color="c")
+    axs3.set_ylabel(r"$V_p [\rm{km/sec}]$", fontsize=ylabelsize, color="w")
 
     # Flux plot
     axs4 = fig.add_subplot(gs[3, 0], sharex=axs1)
@@ -371,7 +371,7 @@ def plot_figures_dsco_1day(sc=None):
         horizontalalignment="right",
         verticalalignment="top",
         transform=axs4.transAxes,
-        fontsize=20,
+        fontsize=24,
         color="w",
         bbox=dict(facecolor="gray", alpha=0.5),
     )
@@ -411,13 +411,13 @@ def plot_figures_dsco_1day(sc=None):
         horizontalalignment="right",
         verticalalignment="top",
         transform=axs5.transAxes,
-        fontsize=20,
-        color="m",
+        fontsize=24,
+        color="w",
         bbox=dict(facecolor="gray", alpha=0.5),
     )
 
     axs5.set_yscale("linear")
-    axs5.set_ylabel(r"Dynamic Pressure [nPa]", fontsize=ylabelsize, color="m")
+    axs5.set_ylabel(r"Dynamic Pressure [nPa]", fontsize=ylabelsize, color="w")
 
     # Cusp latitude plot
     axs6 = fig.add_subplot(gs[5:7, 0], sharex=axs1)
@@ -498,7 +498,7 @@ def plot_figures_dsco_1day(sc=None):
         horizontalalignment="right",
         verticalalignment="top",
         transform=axs6.transAxes,
-        fontsize=20,
+        fontsize=24,
         color="w",
         bbox=dict(facecolor="gray", alpha=0.5),
     )
@@ -645,7 +645,7 @@ def plot_figures_dsco_1day(sc=None):
         ha="right",
         va="center",
         transform=axs3.transAxes,
-        fontsize=20,
+        fontsize=24,
         rotation="vertical",
     )
 
