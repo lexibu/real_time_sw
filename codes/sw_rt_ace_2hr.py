@@ -35,7 +35,12 @@ def plot_figures_ace():
     )
 
     # Set the font style to Times New Roman
-    font = {"family": "serif", "weight": "normal", "size": 10}
+    font = {
+        "family": "sans-serif",
+        "sans-serif": ["Helvetica"],
+        "weight": "normal",
+        "size": 20,
+    }
     plt.rc("font", **font)
     plt.rc("text", usetex=True)
 
@@ -653,11 +658,11 @@ def plot_figures_ace():
     )
 
     # print(f'It took {round(time.time() - start, 3)} seconds')
-    return df_ace
+    return None
 
 
 # s.enter(0, 1, plot_figures_ace, (s,))
 # s.run()
 
 if __name__ == "__main__":
-    df_ace = plot_figures_ace()
+    (_,) = plot_figures_ace()

@@ -38,7 +38,12 @@ def plot_figures_ace_1day(sc=None):
     )
 
     # Set the font style to Times New Roman
-    font = {"family": "serif", "weight": "normal", "size": 10}
+    font = {
+        "family": "sans-serif",
+        "sans-serif": ["Helvetica"],
+        "weight": "normal",
+        "size": 20,
+    }
     plt.rc("font", **font)
     plt.rc("text", usetex=True)
 
@@ -649,7 +654,9 @@ def plot_figures_ace_1day(sc=None):
 
     # print(f'It took {round(time.time() - start, 3)} seconds')
     # return df
-    return df_ace_hc
+    #
+    # return df_ace_hc
+    return None
 
 
 # s.enter(0, 1, plot_figures_ace_1day, (s,))
@@ -664,4 +671,4 @@ print(
 
 
 if __name__ == "__main__":
-    df_ace_hc = plot_figures_ace_1day()
+    (_,) = plot_figures_ace_1day()
