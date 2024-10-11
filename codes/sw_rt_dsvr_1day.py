@@ -685,4 +685,4 @@ def plot_figures_dsco_1day(sc=None):
 # s.run()
 
 if __name__ == "__main__":
-    (_,) = plot_figures_dsco_1day()
+    plot_figures_dsco_1day()

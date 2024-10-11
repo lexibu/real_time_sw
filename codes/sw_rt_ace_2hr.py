@@ -5,20 +5,35 @@ import importlib
 
 import geopack.geopack as gp
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import numpy as np
 import pandas as pd
 from matplotlib.dates import DateFormatter
 from pathlib import Path
-
+import time
 import magnetopause_calculator as mp_calc
 
 # Reload the module to get the latest changes
 importlib.reload(mp_calc)
 
+start_time = time.time()
+
 # s = sched.scheduler(time.time, time.sleep)
 
+mpl.use("Agg")
 # Set the dark mode for the plots
 plt.style.use("dark_background")
+
+# Set the font style to Times New Roman
+font = {
+    "family": "sans-serif",
+    "sans-serif": ["Helvetica"],
+    "weight": "normal",
+    "size": 20,
+}
+plt.rc("font", **font)
+plt.rc("text", usetex=True)
+mpl.rcParams["pgf.texsystem"] = "pdflatex"
 
 
 def plot_figures_ace():
@@ -33,16 +48,6 @@ def plot_figures_ace():
         "Code execution for ACE 2Hr started at (UTC):"
         + f"{datetime.datetime.fromtimestamp(time.time(), datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}\n"
     )
-
-    # Set the font style to Times New Roman
-    font = {
-        "family": "sans-serif",
-        "sans-serif": ["Helvetica"],
-        "weight": "normal",
-        "size": 20,
-    }
-    plt.rc("font", **font)
-    plt.rc("text", usetex=True)
 
     # URL of sweap and magnetometer files
     ace_url_mag = "https://services.swpc.noaa.gov/text/ace-magnetometer.txt"
@@ -282,9 +287,6 @@ def plot_figures_ace():
             color=y_label_colors[i],
         )
 
-    # axs1.text(0.98, 0.95, f'{model_type}', horizontalalignment='right', verticalalignment='center',
-    #          transform=axs1.transAxes, fontsize=18)
-
     # Density plot
     axs2 = fig.add_subplot(gs[1, 0], sharex=axs1)
     (_,) = axs2.plot(
@@ -422,7 +424,7 @@ def plot_figures_ace():
     axs5.set_yscale("linear")
     axs5.set_ylabel(r"Dynamic Pressure [nPa]", fontsize=ylabelsize, color="w")
 
-    # Cusp latitude plot
+    # Magnetopause distance plot
     axs6 = fig.add_subplot(gs[5:7, 0], sharex=axs1)
 
     min_rmp = np.nanmin(
@@ -516,6 +518,7 @@ def plot_figures_ace():
     axs6.set_xlabel(
         f"Time on {df_ace.index.date[0]} (UTC) [HH:MM]", fontsize=xlabelsize
     )
+
     # Set axis ticw-parameters
     axs1.tick_params(
         which="both",
@@ -625,6 +628,7 @@ def plot_figures_ace():
     )
     axs6.yaxis.set_label_position("right")
 
+    # Set the date format for the x-axis
     date_form = DateFormatter("%H:%M")
     axs6.xaxis.set_major_formatter(date_form)
 
@@ -648,16 +652,24 @@ def plot_figures_ace():
     folder_name = Path(folder_name).expanduser()
     Path(folder_name).mkdir(parents=True, exist_ok=True)
 
-    fig_name = "sw_ace_parameters_2hr.png"
+    fig_name = "test_sw_ace_parameters_2hr.png"
     fig_name = folder_name / fig_name
-    plt.savefig(fig_name, bbox_inches="tight", pad_inches=0.05, format="png", dpi=300)
+
+    plt.savefig(
+        fig_name,
+        bbox_inches="tight",
+        pad_inches=0.05,
+        format="png",
+        dpi=100,
+        transparent=False,
+    )
+    # Save the figure using figure
     plt.close("all")
     print(
         "Figure saved for ACE at (UTC):"
         + f"{datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}"
     )
 
-    # print(f'It took {round(time.time() - start, 3)} seconds')
     return None
 
 
@@ -665,4 +677,7 @@ def plot_figures_ace():
 # s.run()
 
 if __name__ == "__main__":
-    (_,) = plot_figures_ace()
+    plot_figures_ace()
+    end_time = time.time()
+    time_taken = end_time - start_time
+    print(f"Time taken for execution: {time_taken} seconds")

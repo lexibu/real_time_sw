@@ -626,11 +626,11 @@ def plot_figures_dsco(sc=None):
     )
 
     # print(f'It took {round(time.time() - start, 3)} seconds')
-    return df_dsco
+    return None
 
 
 # s.enter(0, 1, plot_figures_dsco, (s,))
 # s.run()
 
 if __name__ == "__main__":
-    df_dsco = plot_figures_dsco()
+    plot_figures_dsco()

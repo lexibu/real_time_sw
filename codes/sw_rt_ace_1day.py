@@ -2,7 +2,9 @@
 import datetime
 import time
 import importlib
+import time
 import geopack.geopack as gp
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -18,19 +20,16 @@ importlib.reload(m_codes)
 
 # s = sched.scheduler(time.time, time.sleep)
 
+start = time.time()
+mpl.use("Agg")
 # Set the dark mode for the plots
 plt.style.use("dark_background")
 
 
-def plot_figures_ace_1day(sc=None):
+def plot_figures_ace_1day():
     """
     Download and upload data the ACE database hosted at https://services.swpc.noaa.gov/text/ace-swepam-1-day.json
     """
-    # Set up the time to run the job
-
-    # s.enter(0, 1, m_codes.update_progress_bar, (sc, 0, 52))
-    # s.enter(60, 2, plot_figures_ace_1day, (sc,))
-
     # start = time.time()
     print(
         "\nCode execution for ace 1day data started at at (UTC):"
@@ -636,14 +635,7 @@ def plot_figures_ace_1day(sc=None):
     fig_name = "rt_sw_ace_parameters_1day.png"
 
     fig_name = folder_name / fig_name
-    print(f"Figure saved at: {fig_name}")
     plt.savefig(fig_name, bbox_inches="tight", pad_inches=0.05, format="png", dpi=300)
-
-    # axs1.set_ylim([-22, 22])
-    # axs2.set_ylim([0, 40])
-    # axs3.set_ylim([250, 700])
-    # axs4.set_ylim([0, 20])
-    # axs5.set_ylim([60, 85])
 
     # plt.tight_layout()
     plt.close("all")
@@ -652,23 +644,12 @@ def plot_figures_ace_1day(sc=None):
         + f"{datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}"
     )
 
-    # print(f'It took {round(time.time() - start, 3)} seconds')
-    # return df
-    #
     # return df_ace_hc
     return None
 
 
-# s.enter(0, 1, plot_figures_ace_1day, (s,))
-# s.run()
-
-# Print that the code has finished running and is waiting for the next update in 60 seconds
-print(
-    "Code execution for ace 1day data finished at (UTC):"
-    + f"{datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}"
-)
-# Display a progress bar for the next update
-
-
 if __name__ == "__main__":
-    (_,) = plot_figures_ace_1day()
+    plot_figures_ace_1day()
+    end_time = time.time()
+    time_taken = end_time - start
+    print(f"Time taken to execute the code: {time_taken} seconds")
