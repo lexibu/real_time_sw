@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import datetime
-import time
 import importlib
 
 import geopack.geopack as gp
@@ -16,15 +15,13 @@ import magnetopause_calculator as mp_calc
 # Reload the module to get the latest changes
 importlib.reload(mp_calc)
 
-start_time = time.time()
-
 # s = sched.scheduler(time.time, time.sleep)
 
 mpl.use("Agg")
 # Set the dark mode for the plots
 plt.style.use("dark_background")
 
-# Set the font style to Times New Roman
+# Set the font style to Helvetica
 font = {
     "family": "sans-serif",
     "sans-serif": ["Helvetica"],
@@ -32,7 +29,7 @@ font = {
     "size": 20,
 }
 plt.rc("font", **font)
-plt.rc("text", usetex=True)
+plt.rc("text", usetex=False)
 mpl.rcParams["pgf.texsystem"] = "pdflatex"
 
 
@@ -273,7 +270,7 @@ def plot_figures_ace():
     axs1.set_ylabel(r"B [nT]", fontsize=20)
 
     # Add a text in the plot right outside the plot along the right edge in the middle
-    y_labels = [r"$|\vec{B}|$", r"$B_x$", r"$B_y$", r"$\textbf{B}_z$"]
+    y_labels = [r"$|\vec{B}|$", r"$B_x$", r"$B_y$", r"$B_z$"]
     y_label_colors = ["w", "r", "b", "g"]
     for i, txt in enumerate(y_labels):
         axs1.text(
@@ -385,7 +382,7 @@ def plot_figures_ace():
     )
 
     axs4.set_ylabel(
-        r"~~~~Flux\\ $10^8 [\rm{1/(sec\, cm^2)}]$", fontsize=ylabelsize, color="w"
+        r"Flux $10^8 [\rm{1/(sec\, cm^2)}]$", fontsize=ylabelsize, color="w"
     )
 
     # Add the dynamic pressure plot
@@ -422,7 +419,9 @@ def plot_figures_ace():
     )
 
     axs5.set_yscale("linear")
-    axs5.set_ylabel(r"Dynamic Pressure [nPa]", fontsize=ylabelsize, color="w")
+    axs5.set_ylabel(
+        r"Dynamic Pressure [nPa]", fontsize=ylabelsize, color="w", labelpad=20
+    )
 
     # Magnetopause distance plot
     axs6 = fig.add_subplot(gs[5:7, 0], sharex=axs1)
@@ -504,7 +503,7 @@ def plot_figures_ace():
     y_label_colors = ["g", "b", "w"]
     for i, txt in enumerate(y_labels):
         axs6.text(
-            -0.03,
+            -0.05,
             -0.05 + 0.10 * (i + 1),
             txt,
             ha="right",
@@ -652,7 +651,7 @@ def plot_figures_ace():
     folder_name = Path(folder_name).expanduser()
     Path(folder_name).mkdir(parents=True, exist_ok=True)
 
-    fig_name = "test_sw_ace_parameters_2hr.png"
+    fig_name = "sw_ace_parameters_2hr.png"
     fig_name = folder_name / fig_name
 
     plt.savefig(
@@ -678,6 +677,3 @@ def plot_figures_ace():
 
 if __name__ == "__main__":
     plot_figures_ace()
-    end_time = time.time()
-    time_taken = end_time - start_time
-    print(f"Time taken for execution: {time_taken} seconds")

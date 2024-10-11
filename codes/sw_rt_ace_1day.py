@@ -2,7 +2,6 @@
 import datetime
 import time
 import importlib
-import time
 import geopack.geopack as gp
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -20,10 +19,20 @@ importlib.reload(m_codes)
 
 # s = sched.scheduler(time.time, time.sleep)
 
-start = time.time()
 mpl.use("Agg")
 # Set the dark mode for the plots
 plt.style.use("dark_background")
+
+# Set the font style to Helvetica
+font = {
+    "family": "sans-serif",
+    "sans-serif": ["Helvetica"],
+    "weight": "normal",
+    "size": 20,
+}
+plt.rc("font", **font)
+plt.rc("text", usetex=False)
+mpl.rcParams["pgf.texsystem"] = "pdflatex"
 
 
 def plot_figures_ace_1day():
@@ -35,16 +44,6 @@ def plot_figures_ace_1day():
         "\nCode execution for ace 1day data started at at (UTC):"
         + f"{datetime.datetime.fromtimestamp(time.time(), datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}\n"
     )
-
-    # Set the font style to Times New Roman
-    font = {
-        "family": "sans-serif",
-        "sans-serif": ["Helvetica"],
-        "weight": "normal",
-        "size": 20,
-    }
-    plt.rc("font", **font)
-    plt.rc("text", usetex=True)
 
     # URL of ace files
     ace_url_mag = "https://services.swpc.noaa.gov/products/solar-wind/mag-1-day.json"
@@ -354,7 +353,7 @@ def plot_figures_ace_1day():
     )
 
     axs4.set_ylabel(
-        r"~~~~Flux\\ $10^8 [\rm{1/(sec\, cm^2)}]$", fontsize=ylabelsize, color="w"
+        r"Flux $10^8 [\rm{1/(sec\, cm^2)}]$", fontsize=ylabelsize, color="w"
     )
 
     # Add the dynamic pressure plot
@@ -394,7 +393,9 @@ def plot_figures_ace_1day():
     )
 
     axs5.set_yscale("linear")
-    axs5.set_ylabel(r"Dynamic Pressure [nPa]", fontsize=ylabelsize, color="w")
+    axs5.set_ylabel(
+        r"Dynamic Pressure [nPa]", fontsize=ylabelsize, color="w", labelpad=20
+    )
 
     # Cusp latitude plot
     axs6 = fig.add_subplot(gs[5:7, 0], sharex=axs1)
@@ -485,7 +486,7 @@ def plot_figures_ace_1day():
     y_label_colors = ["g", "b", "w"]
     for i, txt in enumerate(y_labels):
         axs6.text(
-            -0.03,
+            -0.05,
             -0.05 + 0.10 * (i + 1),
             txt,
             ha="right",
@@ -650,6 +651,3 @@ def plot_figures_ace_1day():
 
 if __name__ == "__main__":
     plot_figures_ace_1day()
-    end_time = time.time()
-    time_taken = end_time - start
-    print(f"Time taken to execute the code: {time_taken} seconds")

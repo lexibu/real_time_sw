@@ -2,7 +2,7 @@
 import datetime
 import time
 import importlib
-
+import matplotlib as mpl
 import geopack.geopack as gp
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,8 +16,20 @@ importlib.reload(mp_calc)
 
 # s = sched.scheduler(time.time, time.sleep)
 
+mpl.use("Agg")
 # Set the dark mode for the plots
 plt.style.use("dark_background")
+
+# Set the font style to Times New Roman
+font = {
+    "family": "sans-serif",
+    "sans-serif": ["Helvetica"],
+    "weight": "normal",
+    "size": 20,
+}
+plt.rc("font", **font)
+plt.rc("text", usetex=False)
+mpl.rcParams["pgf.texsystem"] = "pdflatex"
 
 
 def plot_figures_dsco(sc=None):
@@ -32,16 +44,6 @@ def plot_figures_dsco(sc=None):
         "Code execution for DSCOVR 2Hr started at (UTC):"
         + f"{datetime.datetime.fromtimestamp(time.time(), datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}\n"
     )
-
-    # Set the font style to Times New Roman
-    font = {
-        "family": "sans-serif",
-        "sans-serif": ["Helvetica"],
-        "weight": "normal",
-        "size": 20,
-    }
-    plt.rc("font", **font)
-    plt.rc("text", usetex=True)
 
     # URL of plas and magnetometer files
     dscovr_url_mag = (
@@ -235,7 +237,7 @@ def plot_figures_dsco(sc=None):
     axs1.set_ylabel(r"B [nT]", fontsize=20)
 
     # Add a text in the plot right outside the plot along the right edge in the middle
-    y_labels = [r"$|\vec{B}|$", r"$B_x$", r"$B_y$", r"$\textbf{B}_z$"]
+    y_labels = [r"$|\vec{B}|$", r"$B_x$", r"$B_y$", r"$B_z$"]
     y_label_colors = ["w", "r", "b", "g"]
     for i, txt in enumerate(y_labels):
         axs1.text(
@@ -351,7 +353,7 @@ def plot_figures_dsco(sc=None):
 
     axs4.set_yscale("linear")
     axs4.set_ylabel(
-        r"~~~~Flux\\ $10^8 [\rm{1/(sec\, cm^2)}]$", fontsize=ylabelsize, color="w"
+        r"Flux $10^8 [\rm{1/(sec\, cm^2)}]$", fontsize=ylabelsize, color="w"
     )
 
     # Add the dynamic pressure plot
@@ -388,7 +390,9 @@ def plot_figures_dsco(sc=None):
     )
 
     axs5.set_yscale("linear")
-    axs5.set_ylabel(r"Dynamic Pressure [nPa]", fontsize=ylabelsize, color="w")
+    axs5.set_ylabel(
+        r"Dynamic Pressure [nPa]", fontsize=ylabelsize, color="w", labelpad=20
+    )
 
     # Cusp latitude plot
     axs6 = fig.add_subplot(gs[5:7, 0], sharex=axs1)

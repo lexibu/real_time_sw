@@ -2,6 +2,7 @@
 import datetime
 import importlib
 import geopack.geopack as gp
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -16,9 +17,20 @@ importlib.reload(mp_calc)
 importlib.reload(m_codes)
 
 # s = sched.scheduler(time.time, time.sleep)
-
+mpl.use("Agg")
 # Set the dark mode for the plots
 plt.style.use("dark_background")
+
+# Set the font style to Helvetica
+font = {
+    "family": "sans-serif",
+    "sans-serif": ["Helvetica"],
+    "weight": "normal",
+    "size": 20,
+}
+plt.rc("font", **font)
+plt.rc("text", usetex=False)
+mpl.rcParams["pgf.texsystem"] = "pdflatex"
 
 
 def plot_figures_dsco_1day(sc=None):
@@ -52,16 +64,6 @@ def plot_figures_dsco_1day(sc=None):
         "\nCode execution for DSCOVR 1day data started at at (UTC):"
         + f"{datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}"
     )
-
-    # Set the font style to Times New Roman
-    font = {
-        "family": "sans-serif",
-        "sans-serif": ["Helvetica"],
-        "weight": "normal",
-        "size": 20,
-    }
-    plt.rc("font", **font)
-    plt.rc("text", usetex=True)
 
     # URL of dscovr files
     dscovr_url_mag = "https://services.swpc.noaa.gov/products/solar-wind/mag-1-day.json"
@@ -382,7 +384,7 @@ def plot_figures_dsco_1day(sc=None):
     )
 
     axs4.set_ylabel(
-        r"~~~~Flux\\ $10^8 [\rm{1/(sec\, cm^2)}]$", fontsize=ylabelsize, color="w"
+        r"Flux $10^8 [\rm{1/(sec\, cm^2)}]$", fontsize=ylabelsize, color="w"
     )
 
     # Add the dynamic pressure plot
@@ -422,7 +424,9 @@ def plot_figures_dsco_1day(sc=None):
     )
 
     axs5.set_yscale("linear")
-    axs5.set_ylabel(r"Dynamic Pressure [nPa]", fontsize=ylabelsize, color="w")
+    axs5.set_ylabel(
+        r"Dynamic Pressure [nPa]", fontsize=ylabelsize, color="w", labelpad=20
+    )
 
     # Cusp latitude plot
     axs6 = fig.add_subplot(gs[5:7, 0], sharex=axs1)
