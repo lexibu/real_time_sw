@@ -217,13 +217,13 @@ def plot_figures_dsco_1day(sc=None):
     gs = fig.add_gridspec(7, 1)
     axs1 = fig.add_subplot(gs[0, 0])
     axs1.plot(
-        df_dsco.index.values, df_dsco.bx_gsm.values, "r-", lw=lw, ms=ms, label=r"$B_x$"
+        df_dsco.index.values, df_dsco.bx_gsm.values, "b-", lw=lw, ms=ms, label=r"$B_x$"
     )
     axs1.plot(
-        df_dsco.index.values, df_dsco.by_gsm.values, "b-", lw=lw, ms=ms, label=r"$B_y$"
+        df_dsco.index.values, df_dsco.by_gsm.values, "g-", lw=lw, ms=ms, label=r"$B_y$"
     )
     axs1.plot(
-        df_dsco.index.values, df_dsco.bz_gsm.values, "g-", lw=lw, ms=ms, label=r"$B_z$"
+        df_dsco.index.values, df_dsco.bz_gsm.values, "r-", lw=lw, ms=ms, label=r"$B_z$"
     )
     axs1.plot(
         df_dsco.index.values,
@@ -263,7 +263,7 @@ def plot_figures_dsco_1day(sc=None):
     # lgnd1.legend_handles[0]._sizes = [labelsize]
     # Add a text in the plot right outside the plot along the right edge in the middle
     y_labels = [r"$|\vec{B}|$", r"$B_x$", r"$B_y$", r"$B_z$"]
-    y_label_colors = ["w", "r", "b", "g"]
+    y_label_colors = ["w", "b", "g", "r"]
     for i, txt in enumerate(y_labels):
         axs1.text(
             1.01,
@@ -380,6 +380,20 @@ def plot_figures_dsco_1day(sc=None):
         transform=axs4.transAxes,
         fontsize=24,
         color="w",
+        bbox=dict(facecolor="gray", alpha=0.5),
+    )
+
+    #  Add a horizontal line at y=2.5 and label it
+    axs4.axhline(2.5, color="r", lw=2, ls="--")
+    # Add a text right above the horizontal line
+    axs4.text(
+        0.05,
+        0.5,
+        r"$\Phi_{\rm{th}} = 2.5$",
+        horizontalalignment="left",
+        verticalalignment="top",
+        transform=axs4.transAxes,
+        fontsize=24,
         bbox=dict(facecolor="gray", alpha=0.5),
     )
 

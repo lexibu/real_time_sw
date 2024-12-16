@@ -211,7 +211,7 @@ def plot_figures_ace():
     (_,) = axs1.plot(
         df_ace.index.values,
         df_ace.bx_gsm.values,
-        "r-",
+        "b-",
         lw=0.5 * lw,
         ms=ms,
         label=r"$B_x$",
@@ -219,7 +219,7 @@ def plot_figures_ace():
     (_,) = axs1.plot(
         df_ace.index.values,
         df_ace.by_gsm.values,
-        "b-",
+        "g-",
         lw=0.5 * lw,
         ms=ms,
         label=r"$B_y$",
@@ -227,7 +227,7 @@ def plot_figures_ace():
     (_,) = axs1.plot(
         df_ace.index.values,
         df_ace.bz_gsm.values,
-        "g-",
+        "r-",
         lw=1.5 * lw,
         ms=ms,
         label=r"$B_z$",
@@ -271,7 +271,7 @@ def plot_figures_ace():
 
     # Add a text in the plot right outside the plot along the right edge in the middle
     y_labels = [r"$|\vec{B}|$", r"$B_x$", r"$B_y$", r"$B_z$"]
-    y_label_colors = ["w", "r", "b", "g"]
+    y_label_colors = ["w", "b", "g", "r"]
     for i, txt in enumerate(y_labels):
         axs1.text(
             1.01,
@@ -378,6 +378,20 @@ def plot_figures_ace():
         transform=axs4.transAxes,
         fontsize=24,
         color="w",
+        bbox=dict(facecolor="gray", alpha=0.5),
+    )
+
+    # Add a horizontal line at y=2.5 and label it
+    axs4.axhline(2.5, color="r", lw=2, ls="--")
+    # Add a text right above the horizontal line
+    axs4.text(
+        0.05,
+        0.5,
+        r"$\Phi_{\rm{th}} = 2.5$",
+        horizontalalignment="left",
+        verticalalignment="top",
+        transform=axs4.transAxes,
+        fontsize=24,
         bbox=dict(facecolor="gray", alpha=0.5),
     )
 
