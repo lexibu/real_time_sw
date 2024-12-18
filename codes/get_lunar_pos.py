@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import datetime
 from pathlib import Path
+import os
 
 font = {
     "family": "sans-serif",
@@ -67,8 +68,10 @@ def jelinek_plane_mp(pdyn, r0=12.82, l_turning=1.54, e=5.26):
 
 # ========================================
 
+user_name = os.getlogin()
+initial_dir = f"/home/{user_name}/Desktop/git/real_time_sw/data/lunar_data/"
+dir = os.path.expanduser(initial_dir)
 
-dir = "../data/lunar_data/"
 # df = pd.read_csv(dir+'LEXI_Lunar_Pos.txt',header=0,sep=" ")
 df = pd.read_csv(dir + "LEXI_Lunar_Pos.txt", header=3, delim_whitespace=True)
 
