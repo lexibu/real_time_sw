@@ -18,6 +18,9 @@ astropy = "^6.1.2"
 skyfield = "^1.49"
 ephem = "^4.1.5"
 opencv-python = "^4.10.0.84"
+bokeh = "^3.6.2"
+plotly = "^5.24.1"
+dash = "^2.18.2"
 
 
 [build-system]
