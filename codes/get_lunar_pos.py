@@ -86,7 +86,8 @@ now = datetime.datetime.now(datetime.timezone.utc)
 
 # find index in the array of lunar coordinates closest to current time
 closest_idx = (datetime_obj - now).abs().idxmin()
-dindx = 10180  # number of 2min time steps in 2 weeks
+# Get the numebr of 2 minutes interval in 2 weeks
+dindx = int(14.7 * 24 * 60 / 2)
 
 # trim to plot +/- 2 weeks from current time
 xplt = xgse[closest_idx - dindx : closest_idx + dindx]
@@ -103,7 +104,7 @@ plt.style.use("dark_background")
 
 plt.axes().set_aspect("equal")
 
-plt.plot(yplt / re, xplt / re, linewidth=1.5)
+plt.plot(yplt / re, xplt / re, linewidth=1.5, label="Moon Trajectory", color="orange")
 plt.xlabel(r"Y (GSE) [$R_E$]")
 plt.ylabel(r"X (GSE) [$R_E$]")
 
@@ -132,7 +133,7 @@ folder_name = "~/Dropbox/rt_sw/"
 folder_name = Path(folder_name).expanduser()
 Path(folder_name).mkdir(parents=True, exist_ok=True)
 
-fig_name = folder_name / "moon_pos.png"
+fig_name = folder_name / "moon_pos_temp.png"
 
 plt.savefig(
     fig_name,
