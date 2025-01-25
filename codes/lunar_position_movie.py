@@ -9,6 +9,8 @@ from pathlib import Path
 import warnings
 import glob
 import imageio as iio
+from matplotlib.collections import PolyCollection
+
 
 warnings.simplefilter(action="ignore", category=FutureWarning)
 
@@ -65,13 +67,13 @@ def get_lunar_position(now=datetime.datetime.now(datetime.timezone.utc), pdyn=2.
     Path(folder_name).mkdir(parents=True, exist_ok=True)
 
     # Add the time to the figure name
-    fig_name = folder_name / f"{now.strftime('%Y%m%d_%H%M%S')}.png"
+    fig_name = folder_name / f"{now.strftime('%Y%m%d_%H%M')}.png"
     # If file already exists, return
     if os.path.exists(fig_name):
         print(f"File {fig_name} already exists. Skipping...")
         return
-    # else:
-    #     print(f"Generating plot for {now.strftime('%Y-%m-%d %H:%M:%S')}")
+    else:
+        print(f"Generating plot for {now.strftime('%Y-%m-%d %H:%M:%S')}")
     # Define earth radius in meters
     R_earth = 6.371e6
     R_earth_km = R_earth / 1e3
@@ -163,28 +165,49 @@ def get_lunar_position(now=datetime.datetime.now(datetime.timezone.utc), pdyn=2.
     plt.plot(mp_val[1, :], mp_val[0, :], c="c", linewidth=1)
     # Add a text along the line
     plt.text(
-        -50,
+        -42,
         -50,
         "Magnetopause",
         color="c",
         fontsize=20,
         ha="right",
         va="center",
-        rotation=-72,
+        rotation=-75,
     )
     plt.plot(bs_val[1, :], bs_val[0, :], c="w", linewidth=1)
     # Add a text along the line
     plt.text(
-        68,
+        58.7,
         -65,
         "Bow Shock",
         color="w",
         fontsize=20,
         ha="left",
         va="bottom",
-        rotation=67,
+        rotation=69,
     )
 
+    # x_combined = np.concatenate((bs_val[1, :], mp_val[1, ::-1]))
+    # y_combined = np.concatenate((bs_val[0, :], mp_val[0, ::-1]))
+    # gradient = np.gradient(y_combined, x_combined)
+    # colors = plt.cm.plasma(gradient / gradient.max())
+
+    # # Create a PolyCollection with gradient colors
+    # verts = np.array([x_combined, y_combined]).T
+    # polygon = PolyCollection(
+    #     [verts], array=gradient, cmap="viridis", edgecolor="none", alpha=0.6
+    # )
+    # plt.gca().add_collection(polygon)
+    # plt.autoscale()
+    # plt.colorbar(polygon, ax=plt.gca(), orientation="vertical", label="Gradient")
+
+    # Fill the area between the bow shock and magnetopause
+    plt.fill(
+        np.concatenate((bs_val[1, :], mp_val[1, ::-1])),
+        np.concatenate((bs_val[0, :], mp_val[0, ::-1])),
+        color="coral",
+        alpha=0.2,
+    )
     theta = np.arctan2(ygse[closest_idx], xgse[closest_idx]) * 180 / np.pi
     if theta < 0:
         theta = theta + 360.0
@@ -350,7 +373,7 @@ def get_lunar_position(now=datetime.datetime.now(datetime.timezone.utc), pdyn=2.
         alpha=0.2,
     )
 
-    plt.title(f"Moon Position at {now.strftime('%Y-%m-%d %H:%M:%S')}")
+    plt.title(f"Moon Position at {now.strftime('%Y-%m-%d %H:%M')}")
 
     moon_pos = np.array([xgse[closest_idx], ygse[closest_idx]]) / R_earth_km
     mp_pos = np.array([x_mp_gse, y_mp_gse]) / R_earth_km
@@ -393,6 +416,7 @@ def get_lunar_position(now=datetime.datetime.now(datetime.timezone.utc), pdyn=2.
     # Fill the cone region
     cone_x = [moon_pos[0], boundary_line1[0], boundary_line2[0]]
     cone_y = [moon_pos[1], boundary_line1[1], boundary_line2[1]]
+
     plt.fill(cone_y, cone_x, color="bisque", alpha=0.1)
     # Add a text with color bisque and alpha=0.1
     plt.text(
@@ -537,34 +561,36 @@ def gif_maker(
 # Generate the plots
 # Set the time interval for the movie
 time_interval = 15  # minutes
-total_duration = 56  # days
+total_duration = 3  # days
+plotting_start_time = datetime.datetime(
+    2025, 9, 1, 0, 0, 0, tzinfo=datetime.timezone.utc
+)
 # Loop through the time interval and generate the plots
 for i in range(int(total_duration * 24 * 60 / time_interval)):
-    now = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
-        minutes=i * time_interval
-    )
+    now = plotting_start_time + datetime.timedelta(minutes=i * time_interval)
     # Print the progress
     # print(f"Generating plot for {now.strftime('%Y-%m-%d %H:%M:%S')}")
     get_lunar_position(now)
     # Add a progress bar to show the progress of the image generation
     print(f"Generating plot - {i+1} of {int(total_duration * 24 * 60 / time_interval)}")
 
+
 file_list = sorted(glob.glob("../figures/rt_sw/movie_frames/*.png"))
-start_time = "2025-03-02 00:00:00"
-end_time = "2025-03-08 00:00:00"
-start_time = datetime.datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
-end_time = datetime.datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S")
+start_time = "2025-03-02 00:00"
+end_time = "2025-03-08 00:00"
+start_time = datetime.datetime.strptime(start_time, "%Y-%m-%d %H:%M")
+end_time = datetime.datetime.strptime(end_time, "%Y-%m-%d %H:%M")
 new_file_list = []
 for file in file_list:
     file_timestamp_str = file.split("/")[-1].split(".")[0]
-    file_timestamp = datetime.datetime.strptime(file_timestamp_str, "%Y%m%d_%H%M%S")
+    file_timestamp = datetime.datetime.strptime(file_timestamp_str, "%Y%m%d_%H%M")
     if start_time <= file_timestamp <= end_time:
         new_file_list.append(file)
 
 
 gif_maker(
     new_file_list,
-    f"../figures/rt_sw/movie/lunar_position_{start_time.strftime('%Y%m%d_%H%M%S')}_{end_time.strftime('%Y%m%d_%H%M%S')}.mp4",
+    f"../figures/rt_sw/movie/lunar_position_{start_time.strftime('%Y%m%d_%H%M')}_{end_time.strftime('%Y%m%d_%H%M')}.mp4",
     mode="I",
     skip_rate=1,
     vid_type="mp4",

@@ -1067,7 +1067,7 @@ def get_lunar_position(pdyn=2.5):
     folder_name = Path(folder_name).expanduser()
     Path(folder_name).mkdir(parents=True, exist_ok=True)
 
-    fig_name = folder_name / "moon_pos.png"
+    fig_name = folder_name / "moon_pos_v2.png"
 
     plt.savefig(
         fig_name,
