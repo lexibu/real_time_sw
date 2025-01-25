@@ -57,6 +57,21 @@ def jelinek_plane_mp(pdyn, r0=12.82, l_turning=1.54, e=5.26):
 
 
 def get_lunar_position(now=datetime.datetime.now(datetime.timezone.utc), pdyn=2.5):
+
+    # Properly define the folder and figure name
+    folder_name = "../figures/rt_sw/movie_frames/"
+    # Check if folder exists, if not create it
+    folder_name = Path(folder_name).expanduser()
+    Path(folder_name).mkdir(parents=True, exist_ok=True)
+
+    # Add the time to the figure name
+    fig_name = folder_name / f"{now.strftime('%Y%m%d_%H%M%S')}.png"
+    # If file already exists, return
+    if os.path.exists(fig_name):
+        print(f"File {fig_name} already exists. Skipping...")
+        return
+    # else:
+    #     print(f"Generating plot for {now.strftime('%Y-%m-%d %H:%M:%S')}")
     # Define earth radius in meters
     R_earth = 6.371e6
     R_earth_km = R_earth / 1e3
@@ -416,14 +431,6 @@ def get_lunar_position(now=datetime.datetime.now(datetime.timezone.utc), pdyn=2.
         alpha=0.5,
     )
 
-    # Properly define the folder and figure name
-    folder_name = "../figures/rt_sw/movie_frames/"
-    # Check if folder exists, if not create it
-    folder_name = Path(folder_name).expanduser()
-    Path(folder_name).mkdir(parents=True, exist_ok=True)
-
-    # Add the time to the figure name
-    fig_name = folder_name / f"{now.strftime('%Y%m%d_%H%M%S')}.png"
     plt.savefig(
         fig_name,
         bbox_inches="tight",
@@ -530,9 +537,8 @@ def gif_maker(
 # Generate the plots
 # Set the time interval for the movie
 time_interval = 15  # minutes
-total_duration = 7  # days
-#
-# # Loop through the time interval and generate the plots
+total_duration = 56  # days
+# Loop through the time interval and generate the plots
 for i in range(int(total_duration * 24 * 60 / time_interval)):
     now = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
         minutes=i * time_interval
@@ -544,9 +550,21 @@ for i in range(int(total_duration * 24 * 60 / time_interval)):
     print(f"Generating plot - {i+1} of {int(total_duration * 24 * 60 / time_interval)}")
 
 file_list = sorted(glob.glob("../figures/rt_sw/movie_frames/*.png"))
+start_time = "2025-03-02 00:00:00"
+end_time = "2025-03-08 00:00:00"
+start_time = datetime.datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
+end_time = datetime.datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S")
+new_file_list = []
+for file in file_list:
+    file_timestamp_str = file.split("/")[-1].split(".")[0]
+    file_timestamp = datetime.datetime.strptime(file_timestamp_str, "%Y%m%d_%H%M%S")
+    if start_time <= file_timestamp <= end_time:
+        new_file_list.append(file)
+
+
 gif_maker(
-    file_list,
-    "../figures/rt_sw/movie/lunar_position.mp4",
+    new_file_list,
+    f"../figures/rt_sw/movie/lunar_position_{start_time.strftime('%Y%m%d_%H%M%S')}_{end_time.strftime('%Y%m%d_%H%M%S')}.mp4",
     mode="I",
     skip_rate=1,
     vid_type="mp4",
