@@ -1078,6 +1078,10 @@ def get_lunar_position(pdyn=2.5):
         facecolor="black",
     )
 
+    print(
+        f"Figure saved for Moon position at (UTC): {now.strftime('%Y-%m-%d %H:%M:%S')}"
+    )
+
 
 # s.enter(0, 1, plot_figures_dsco, (s,))
 # s.run()
@@ -1086,4 +1090,3 @@ if __name__ == "__main__":
     pdyn = plot_figures_dsco()
     # pdyn = 0.1
     get_lunar_position(pdyn)
-    print("Done")
