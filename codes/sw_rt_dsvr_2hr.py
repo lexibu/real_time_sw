@@ -1081,6 +1081,7 @@ def get_lunar_position(pdyn=2.5):
     print(
         f"Figure saved for Moon position at (UTC): {now.strftime('%Y-%m-%d %H:%M:%S')}"
     )
+    print(f"Figure saved at {fig_name}")
 
 
 # s.enter(0, 1, plot_figures_dsco, (s,))
