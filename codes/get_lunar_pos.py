@@ -23,7 +23,6 @@ R_earth = 6.371e6
 R_earth_km = R_earth / 1e3
 
 
-# ========================================
 # Analytic surface functions for bow shock
 def jelinek_plane_bs(pdyn, r0=15.02, l_turning=1.17, e=6.55):
     """
@@ -67,8 +66,6 @@ def jelinek_plane_mp(pdyn, r0=12.82, l_turning=1.54, e=5.26):
 
     return result
 
-
-# ========================================
 
 user_name = os.getlogin()
 initial_dir = f"/home/{user_name}/Desktop/git/real_time_sw/data/lunar_data/"
