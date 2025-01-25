@@ -12,6 +12,7 @@ from matplotlib.dates import DateFormatter
 from pathlib import Path
 import magnetopause_calculator as mp_calc
 
+
 # Reload the module to get the latest changes
 importlib.reload(mp_calc)
 
@@ -23,11 +24,12 @@ plt.style.use("dark_background")
 
 # Set the font style to Times New Roman
 font = {
-    "family": "sans-serif",
-    "sans-serif": ["Helvetica"],
+    "family": "DejaVu Sans",
+    "sans-serif": ["DejaVu Sans"],
     "weight": "normal",
     "size": 20,
 }
+
 plt.rc("font", **font)
 plt.rc("text", usetex=False)
 mpl.rcParams["pgf.texsystem"] = "pdflatex"
@@ -716,6 +718,17 @@ def get_lunar_position(pdyn=2.5):
 
     # find index in the array of lunar coordinates closest to current time
     closest_idx = (datetime_obj - now).abs().idxmin()
+
+    # Get the closest index for next day
+    closest_idx_day1 = (
+        (datetime_obj - (now + datetime.timedelta(days=7))).abs().idxmin()
+    )
+    closest_idx_day2 = (
+        (datetime_obj - (now + datetime.timedelta(days=14))).abs().idxmin()
+    )
+    closest_idx_day3 = (
+        (datetime_obj - (now + datetime.timedelta(days=21))).abs().idxmin()
+    )
     # Get the numebr of 2 minutes interval in 2 weeks
     dindx = int(14.7 * 24 * 60 / 2)
 
@@ -770,14 +783,38 @@ def get_lunar_position(pdyn=2.5):
         yplt / R_earth_km,
         xplt / R_earth_km,
         linewidth=1.5,
+        ls="--",
         label="Moon Trajectory",
-        color="orange",
+        color="gray",
+        alpha=0.5,
     )
     plt.xlabel(r"Y (GSE) [$R_E$]")
     plt.ylabel(r"X (GSE) [$R_E$]")
 
-    plt.plot(mp_val[1, :], mp_val[0, :], c="w", linewidth=1)
+    plt.plot(mp_val[1, :], mp_val[0, :], c="c", linewidth=1)
+    # Add a text along the line
+    plt.text(
+        -50,
+        -50,
+        "Magnetopause",
+        color="c",
+        fontsize=20,
+        ha="right",
+        va="center",
+        rotation=-72,
+    )
     plt.plot(bs_val[1, :], bs_val[0, :], c="w", linewidth=1)
+    # Add a text along the line
+    plt.text(
+        68,
+        -65,
+        "Bow Shock",
+        color="w",
+        fontsize=20,
+        ha="left",
+        va="bottom",
+        rotation=67,
+    )
 
     theta = np.arctan2(ygse[closest_idx], xgse[closest_idx]) * 180 / np.pi
     if theta < 0:
@@ -807,21 +844,141 @@ def get_lunar_position(pdyn=2.5):
         bbox=dict(facecolor="gray", alpha=0.5),
     )
 
+    # Find the maximum value of mp_val at y=0
+    mp_val_max = np.nanmax(mp_val[0, :])
+    bs_val_max = np.nanmax(bs_val[0, :])
+    # Define positions for the arrows
+    arrow_start_mp = (0, mp_val_max)
+    arrow_start_bs = (0, bs_val_max)
+
+    # Add arrows and labels
+    plt.annotate(
+        r"%.1f$R_E$" % mp_val_max,
+        xy=arrow_start_mp,
+        xytext=(
+            arrow_start_mp[1] - 15.15,
+            arrow_start_mp[0] - 15.15,
+        ),
+        arrowprops=dict(
+            facecolor="aqua",
+            shrink=0.01,
+            width=1,
+            headwidth=7,
+            alpha=0.2,
+            zorder=1,
+            edgecolor="aqua",
+        ),
+        color="aqua",
+        fontsize=20,
+        bbox=dict(facecolor="gray", alpha=0.0),
+        ha="center",
+        va="center",
+        alpha=0.2,
+    )
+
+    plt.annotate(
+        r"%.1f$R_E$" % bs_val_max,
+        xy=arrow_start_bs,
+        xytext=(
+            40,
+            arrow_start_bs[0] + 15.15,
+        ),
+        arrowprops=dict(
+            facecolor="w",
+            shrink=0.05,
+            width=1,
+            headwidth=7,
+            alpha=0.5,
+            zorder=1,
+            edgecolor="w",
+        ),
+        color="w",
+        fontsize=20,
+        bbox=dict(facecolor="gray", alpha=0.0),
+        ha="center",
+        va="center",
+        alpha=0.6,
+    )
+
+    # arrow = patches.FancyArrowPatch(
+    #     arrow_start_bs,
+    #     (40, bs_val_max + 4),
+    #     connectionstyle="arc3,rad=0.4",  # Curvature (rad > 0 makes a counter-clockwise curve)
+    #     color="w",
+    #     linewidth=1,
+    #     arrowstyle="->",
+    #     mutation_scale=15,
+    #     alpha=0.6,
+    # )
+    # plt.gca().add_patch(arrow)
+
     plt.ylim((-70, 80))
     plt.xlim((70, -70))
 
     # plot Earth
-    circle1 = plt.Circle((0, 0), 1.0, color="g", fill=True, linewidth=4)
-    fig = plt.gcf()
-    fig.gca().add_artist(circle1)
+    # circle1 = plt.Circle((0, 0), 1.0, color="g", fill=True, linewidth=4)
+    # fig = plt.gcf()
+    # fig.gca().add_artist(circle1)
+    # Add unicode for earth
+    plt.text(
+        0,
+        0,
+        "\u25CF",
+        fontsize=30,
+        ha="center",
+        va="center",
+        color="g",
+        zorder=1,
+    )
 
-    plt.scatter(
+    # plot moon
+    # plt.scatter(
+    #     ygse[closest_idx] / R_earth_km,
+    #     xgse[closest_idx] / R_earth_km,
+    #     s=130,
+    #     color="red",
+    #     alpha=0.8,
+    #     zorder=10,
+    # )
+    plt.text(
         ygse[closest_idx] / R_earth_km,
         xgse[closest_idx] / R_earth_km,
-        s=130,
-        color="red",
-        alpha=0.8,
-        zorder=10,
+        "\u263D",
+        fontsize=30,
+        ha="center",
+        va="center",
+        color="white",
+    )
+
+    plt.text(
+        ygse[closest_idx_day1] / R_earth_km,
+        xgse[closest_idx_day1] / R_earth_km,
+        "\u263D",
+        fontsize=30,
+        ha="center",
+        va="center",
+        color="white",
+        alpha=0.2,
+    )
+    plt.text(
+        ygse[closest_idx_day2] / R_earth_km,
+        xgse[closest_idx_day2] / R_earth_km,
+        "\u263D",
+        fontsize=30,
+        ha="center",
+        va="center",
+        color="white",
+        alpha=0.2,
+    )
+    plt.text(
+        ygse[closest_idx_day3] / R_earth_km,
+        xgse[closest_idx_day3] / R_earth_km,
+        "\u263D",
+        fontsize=30,
+        ha="center",
+        va="center",
+        color="white",
+        alpha=0.2,
     )
 
     plt.title(f"Moon Position at {now.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -867,7 +1024,18 @@ def get_lunar_position(pdyn=2.5):
     # Fill the cone region
     cone_x = [moon_pos[0], boundary_line1[0], boundary_line2[0]]
     cone_y = [moon_pos[1], boundary_line1[1], boundary_line2[1]]
-    plt.fill(cone_y, cone_x, color="c", alpha=0.1)
+    plt.fill(cone_y, cone_x, color="bisque", alpha=0.1)
+    # Add a text with color bisque and alpha=0.1
+    plt.text(
+        0.02,
+        0.9,
+        "Projected Look Direction",
+        transform=plt.gca().transAxes,
+        ha="left",
+        va="top",
+        color="bisque",
+        fontsize=20,
+    )
 
     # Plot the cone boundaries
     plt.plot(
@@ -899,7 +1067,7 @@ def get_lunar_position(pdyn=2.5):
     folder_name = Path(folder_name).expanduser()
     Path(folder_name).mkdir(parents=True, exist_ok=True)
 
-    fig_name = folder_name / "moon_pos.png"
+    fig_name = folder_name / "moon_pos_2.png"
 
     plt.savefig(
         fig_name,
@@ -915,5 +1083,6 @@ def get_lunar_position(pdyn=2.5):
 # s.run()
 
 if __name__ == "__main__":
-    pdyn = plot_figures_dsco()
+    # pdyn = plot_figures_dsco()
+    # pdyn = 0.1
     get_lunar_position(pdyn)

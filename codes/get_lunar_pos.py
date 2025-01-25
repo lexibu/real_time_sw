@@ -45,7 +45,7 @@ def jelinek_plane_bs(pdyn, r0=15.02, l_turning=1.17, e=6.55):
     return result
 
 
-# Analytic surface functions for bow shock
+# Analytic surface functions for Magnetopause
 def jelinek_plane_mp(pdyn, r0=12.82, l_turning=1.54, e=5.26):
     """
     Bow shock model from Jelinek et al 2012. Assumes GSE Z=0.
