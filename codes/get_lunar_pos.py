@@ -171,7 +171,8 @@ plt.scatter(
     xgse[closest_idx] / R_earth_km,
     s=130,
     color="red",
-    alpha=1,
+    alpha=0.8,
+    zorder=10,
 )
 
 plt.title(f"Moon Position at {now.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -218,7 +219,7 @@ boundary_line2 = moon_pos + boundary_vector2 * 200
 # Fill the cone region
 cone_x = [moon_pos[0], boundary_line1[0], boundary_line2[0]]
 cone_y = [moon_pos[1], boundary_line1[1], boundary_line2[1]]
-plt.fill(cone_y, cone_x, color="c", alpha=0.3)
+plt.fill(cone_y, cone_x, color="c", alpha=0.1)
 
 # Plot the cone boundaries
 plt.plot(
