@@ -392,12 +392,15 @@ def plot_figures_dsco(sc=None):
 
     # In a textbox, add the average value of the dynamic pressure in the plot at the top
     # right corner
-    avg_p_dyn = np.nanmean(df_dsco.p_dyn)
+    avg_p_dyn_all = np.nanmean(df_dsco.p_dyn)
+
+    # Finnd the pdyn between t1 and t2
+    avg_p_dyn = np.nanmean(df_dsco.p_dyn[(df_dsco.index >= t2) & (df_dsco.index <= t1)])
 
     axs5.text(
         0.98,
         0.95,
-        r"$\langle P_{\rm{dyn}} \rangle = %.2f$" % avg_p_dyn,
+        r"$\langle P_{\rm{dyn}} \rangle = %.2f$" % avg_p_dyn_all,
         horizontalalignment="right",
         verticalalignment="top",
         transform=axs5.transAxes,
@@ -835,7 +838,7 @@ def get_lunar_position(pdyn=2.5):
     plt.text(
         0.98,
         0.98,
-        r"$P_{dyn} = %.1f$ nPa" % pdyn,
+        r"$P_{dyn} = %.2f$ nPa" % pdyn,
         transform=plt.gca().transAxes,
         ha="right",
         va="top",
@@ -1088,6 +1091,7 @@ def get_lunar_position(pdyn=2.5):
 # s.run()
 
 if __name__ == "__main__":
-    pdyn = plot_figures_dsco()
+    # pdyn = plot_figures_dsco()
+    avg_p_dyn = plot_figures_dsco()
     # pdyn = 0.1
-    get_lunar_position(pdyn)
+    get_lunar_position(avg_p_dyn)
