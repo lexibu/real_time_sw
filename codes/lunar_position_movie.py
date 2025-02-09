@@ -72,8 +72,8 @@ def get_lunar_position(now=datetime.datetime.now(datetime.timezone.utc), pdyn=2.
     if os.path.exists(fig_name):
         print(f"File {fig_name} already exists. Skipping...")
         return
-    else:
-        print(f"Generating plot for {now.strftime('%Y-%m-%d %H:%M:%S')}")
+    # else:
+    #     print(f"Generating plot for {now.strftime('%Y-%m-%d %H:%M:%S')}")
     # Define earth radius in meters
     R_earth = 6.371e6
     R_earth_km = R_earth / 1e3
@@ -563,7 +563,7 @@ def gif_maker(
 time_interval = 15  # minutes
 total_duration = 3  # days
 plotting_start_time = datetime.datetime(
-    2025, 9, 1, 0, 0, 0, tzinfo=datetime.timezone.utc
+    2025, 10, 1, 0, 0, 0, tzinfo=datetime.timezone.utc
 )
 # Loop through the time interval and generate the plots
 for i in range(int(total_duration * 24 * 60 / time_interval)):
@@ -574,10 +574,9 @@ for i in range(int(total_duration * 24 * 60 / time_interval)):
     # Add a progress bar to show the progress of the image generation
     print(f"Generating plot - {i+1} of {int(total_duration * 24 * 60 / time_interval)}")
 
-
 file_list = sorted(glob.glob("../figures/rt_sw/movie_frames/*.png"))
-start_time = "2025-03-02 00:00"
-end_time = "2025-03-08 00:00"
+start_time = "2025-03-01 00:00"
+end_time = "2025-03-13 00:00"
 start_time = datetime.datetime.strptime(start_time, "%Y-%m-%d %H:%M")
 end_time = datetime.datetime.strptime(end_time, "%Y-%m-%d %H:%M")
 new_file_list = []
